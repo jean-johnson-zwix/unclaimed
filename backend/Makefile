@@ -9,7 +9,7 @@ MAKEFLAGS += --no-builtin-rules
 PROJECT := unclaimed
 PORT ?= 8000
 
-.PHONY: all sync run test lint clean help
+.PHONY: all sync run test lint graph clean help
 
 ## Default: sync deps
 all: sync
@@ -29,6 +29,10 @@ test:
 ## Lint with ruff (if installed)
 lint:
 	uv run ruff check app/ tests/ || true
+
+## Generate interactive graph visualization (graph.html)
+graph:
+	uv run python scripts/visualize.py
 
 ## Remove cached files
 clean:

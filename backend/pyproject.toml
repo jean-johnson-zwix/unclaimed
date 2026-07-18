@@ -18,4 +18,5 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pyvis>=0.3.2",
 ]
