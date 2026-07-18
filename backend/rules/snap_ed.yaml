@@ -1,0 +1,20 @@
+id: snap_ed
+name: SNAP-Ed (Nutrition Education)
+agency: USDA / AZ DHS
+category: nutrition
+jurisdiction: [federal, AZ]
+is_hub: false
+description: Free nutrition education and cooking classes for SNAP-eligible families.
+apply_url: https://snaped.fns.usda.gov
+effective_date: "2026-01"
+
+conditions:
+  - id: snap_ed_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 185
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 185% FPL

@@ -1,0 +1,31 @@
+id: snap_employment
+name: SNAP Employment & Training
+agency: USDA / AZ DES
+category: employment
+jurisdiction: [federal, AZ]
+is_hub: false
+description: Job training, education, and work support for SNAP recipients.
+apply_url: https://des.az.gov/services/employment/nutrition-assistance-employment-training
+effective_date: "2026-01"
+
+conditions:
+  - id: snap_et_enrolled
+    type: categorical
+    measure: enrolled_programs
+    operator: includes_any
+    value: [snap]
+    hard_gate: true
+    verifiable: true
+    label: Must be a current SNAP recipient
+
+  - id: snap_et_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+streamlined_by:
+  - {from: snap, satisfies: [snap_et_enrolled]}

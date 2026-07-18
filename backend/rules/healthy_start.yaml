@@ -1,0 +1,28 @@
+id: healthy_start
+name: Healthy Start (AZ)
+agency: AZ DHS
+category: health
+jurisdiction: [AZ]
+is_hub: false
+description: Home visits, health education, and care coordination for pregnant women and new parents.
+apply_url: https://www.azdhs.gov/prevention/womens-childrens-health/healthy-start/
+effective_date: "2026-01"
+
+conditions:
+  - id: hs_category
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [pregnant, infant, has_child_under_5]
+    hard_gate: true
+    verifiable: true
+    label: Must be pregnant or have child under 2
+
+  - id: hs_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

@@ -1,0 +1,29 @@
+id: pell_grant
+name: Federal Pell Grant
+agency: US Dept. of Education
+category: education
+jurisdiction: [federal]
+is_hub: false
+description: Need-based grant for undergraduate students (up to $7,395/year for 2026-2027).
+apply_url: https://studentaid.gov/h/apply-for-aid/fafsa
+effective_date: "2026-01"
+
+conditions:
+  - id: pell_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 400
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income eligibility (roughly under $60k for max grant)
+
+  - id: pell_student
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [student]
+    hard_gate: true
+    verifiable: true
+    label: Must be an enrolled undergraduate student

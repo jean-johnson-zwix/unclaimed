@@ -1,0 +1,52 @@
+id: ca_calworks
+name: CalWORKs (CA TANF)
+agency: CA DSS
+category: cash_assistance
+jurisdiction: [federal, CA]
+is_hub: true
+description: California's TANF program - temporary cash aid and services for families with children.
+apply_url: https://www.cdss.ca.gov/calworks
+effective_date: "2026-01"
+
+conditions:
+  - id: calworks_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 100% FPL
+
+  - id: calworks_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant, pregnant]
+    hard_gate: true
+    verifiable: true
+    label: Must have dependent children or be pregnant
+
+  - id: calworks_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [CA]
+    hard_gate: true
+    verifiable: true
+    label: California residency
+
+  - id: calworks_assets
+    type: asset
+    measure: assets
+    operator: "<="
+    value: 10000
+    unit: usd
+    hard_gate: true
+    verifiable: true
+    label: Assets at or below $10,000
+
+categorically_qualifies:
+  - school_meals
+  - head_start

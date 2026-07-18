@@ -1,0 +1,20 @@
+id: acp_internet
+name: Low-Income Internet (ACP Successor)
+agency: FCC
+category: telecom
+jurisdiction: [federal]
+is_hub: false
+description: $30/month discount on broadband internet service for eligible households.
+apply_url: https://www.affordableconnectivity.gov
+effective_date: "2026-01"
+
+conditions:
+  - id: acp_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 200% FPL

@@ -1,0 +1,39 @@
+id: ca_eitc
+name: California EITC (CalEITC)
+agency: CA Franchise Tax Board
+category: tax_credit
+jurisdiction: [CA]
+is_hub: false
+description: State earned income tax credit on top of the federal EITC (up to ~$3,500).
+apply_url: https://www.ftb.ca.gov/file/personal/credits/california-earned-income-tax-credit.html
+effective_date: "2026-01"
+
+conditions:
+  - id: ca_eitc_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Earned income under ~$30k
+
+  - id: ca_eitc_income_floor
+    type: income_threshold
+    measure: gross_annual_income
+    operator: ">="
+    value: 1
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Must have earned income
+
+  - id: ca_eitc_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [CA]
+    hard_gate: true
+    verifiable: true
+    label: California residency

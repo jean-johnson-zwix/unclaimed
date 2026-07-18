@@ -1,0 +1,29 @@
+id: ga
+name: General Assistance (GA)
+agency: AZ DES
+category: cash_assistance
+jurisdiction: [AZ]
+is_hub: false
+description: Small monthly cash benefit for very low-income adults without dependent children.
+apply_url: https://des.az.gov/services/basic-needs/cash-assistance
+effective_date: "2026-01"
+
+conditions:
+  - id: ga_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 50
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 50% FPL
+
+  - id: ga_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

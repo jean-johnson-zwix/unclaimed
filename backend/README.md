@@ -42,6 +42,11 @@ curl -X POST http://localhost:8000/screen \
   -H "Content-Type: application/json" \
   -d '{"profile":{"household_size":3,"monthly_income":2000,"state":"AZ","categories":["has_child_under_5","has_child","pregnant"],"enrolled_in":["ssi"]},"mode":"agent"}'
 
+# Freeform text intake (requires LLM API key, parses text -> profile -> screen)
+curl -X POST http://localhost:8000/screen \
+  -H "Content-Type: application/json" \
+  -d '{"text":"single mom, 2 kids, about 2k per month, Phoenix AZ, pregnant, on SSI","mode":"agent"}'
+
 # SSI unlock cascade
 curl -X POST http://localhost:8000/unlock \
   -H "Content-Type: application/json" \

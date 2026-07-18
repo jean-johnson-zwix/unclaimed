@@ -1,0 +1,19 @@
+id: able_account
+name: ABLE Savings Account (AZ ABLE)
+agency: AZ State Treasurer
+category: savings
+jurisdiction: [federal, AZ]
+is_hub: false
+description: Tax-advantaged savings account for individuals with disabilities (won't affect SSI/Medicaid eligibility).
+apply_url: https://savewithable.com/az
+effective_date: "2026-01"
+
+conditions:
+  - id: able_disabled
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [disabled]
+    hard_gate: true
+    verifiable: true
+    label: Must have a disability (onset before age 26)

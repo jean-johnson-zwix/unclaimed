@@ -1,0 +1,50 @@
+id: tx_wic
+name: WIC (Texas)
+agency: TX DSHS
+category: nutrition
+jurisdiction: [federal, TX]
+is_hub: false
+description: Texas WIC - nutrition assistance for pregnant/postpartum women, infants, and children under 5.
+apply_url: https://texaswic.org
+effective_date: "2026-01"
+
+conditions:
+  - id: tx_wic_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 185
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 185% FPL
+
+  - id: tx_wic_category
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [pregnant, postpartum, infant, has_child_under_5]
+    hard_gate: true
+    verifiable: true
+    label: Pregnant, postpartum, infant, or child under 5
+
+  - id: tx_wic_nutritional_risk
+    type: clinical
+    hard_gate: true
+    verifiable: false
+    label: Nutritional risk (agency determination)
+    description: Nutritional risk determined by a health professional
+
+  - id: tx_wic_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [TX]
+    hard_gate: true
+    verifiable: true
+    label: Texas residency
+
+streamlined_by:
+  - {from: tx_snap, satisfies: [tx_wic_income]}
+  - {from: tx_medicaid, satisfies: [tx_wic_income]}
+  - {from: tx_tanf, satisfies: [tx_wic_income]}

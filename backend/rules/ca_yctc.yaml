@@ -1,0 +1,38 @@
+id: ca_yctc
+name: CA Young Child Tax Credit (YCTC)
+agency: CA Franchise Tax Board
+category: tax_credit
+jurisdiction: [CA]
+is_hub: false
+description: Up to $1,117 for families with children under 6 who qualify for CalEITC.
+apply_url: https://www.ftb.ca.gov/file/personal/credits/young-child-tax-credit.html
+effective_date: "2026-01"
+
+conditions:
+  - id: yctc_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income under CalEITC threshold
+
+  - id: yctc_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child_under_5, infant]
+    hard_gate: true
+    verifiable: true
+    label: Must have child under 6
+
+  - id: yctc_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [CA]
+    hard_gate: true
+    verifiable: true
+    label: California residency

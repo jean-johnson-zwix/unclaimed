@@ -1,0 +1,29 @@
+id: csfp
+name: Commodity Supplemental Food Program (CSFP)
+agency: USDA FNS
+category: nutrition
+jurisdiction: [federal]
+is_hub: false
+description: Monthly food packages for seniors 60+ with limited income.
+apply_url: https://www.fns.usda.gov/csfp
+effective_date: "2026-01"
+
+conditions:
+  - id: csfp_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 130
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 130% FPL
+
+  - id: csfp_age
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus]
+    hard_gate: true
+    verifiable: true
+    label: Must be 60 years or older

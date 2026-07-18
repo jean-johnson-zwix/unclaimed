@@ -1,0 +1,40 @@
+id: restaurant_meals
+name: Restaurant Meals Program (SNAP)
+agency: USDA / AZ DES
+category: nutrition
+jurisdiction: [AZ]
+is_hub: false
+description: Allows certain SNAP recipients (elderly, disabled, homeless) to use benefits at approved restaurants.
+apply_url: https://des.az.gov/services/basic-needs/food-assistance
+effective_date: "2026-01"
+
+conditions:
+  - id: rmp_enrolled
+    type: categorical
+    measure: enrolled_programs
+    operator: includes_any
+    value: [snap]
+    hard_gate: true
+    verifiable: true
+    label: Must be a current SNAP recipient
+
+  - id: rmp_category
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus, disabled, homeless]
+    hard_gate: true
+    verifiable: true
+    label: Must be elderly, disabled, or homeless
+
+  - id: rmp_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+streamlined_by:
+  - {from: snap, satisfies: [rmp_enrolled]}

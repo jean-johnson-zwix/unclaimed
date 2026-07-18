@@ -1,0 +1,20 @@
+id: free_phone
+name: ACP/Free Government Phone
+agency: FCC
+category: telecom
+jurisdiction: [federal]
+is_hub: false
+description: Free smartphone and monthly data through the Affordable Connectivity Program successor.
+apply_url: https://www.lifelinesupport.org
+effective_date: "2026-01"
+
+conditions:
+  - id: free_phone_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 135
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 135% FPL

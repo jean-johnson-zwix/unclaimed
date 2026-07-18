@@ -1,0 +1,39 @@
+id: veterans_pension
+name: VA Pension
+agency: US Dept. of Veterans Affairs
+category: veterans
+jurisdiction: [federal]
+is_hub: false
+description: Monthly benefit for wartime veterans with limited income and who are 65+ or disabled.
+apply_url: https://www.va.gov/pension/
+effective_date: "2026-01"
+
+conditions:
+  - id: va_pension_veteran
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [veteran]
+    hard_gate: true
+    verifiable: true
+    label: Must be a veteran
+
+  - id: va_pension_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income below threshold (~100% FPL equivalent)
+
+  - id: va_pension_age_or_disability
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus, disabled]
+    logic_group: va_age_dis
+    hard_gate: true
+    verifiable: true
+    label: Age 65+ or permanently disabled

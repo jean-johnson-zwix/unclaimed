@@ -1,0 +1,42 @@
+id: tx_medicaid
+name: Texas Medicaid
+agency: TX HHSC
+category: health
+jurisdiction: [federal, TX]
+is_hub: true
+description: Health coverage for very low-income Texans (no expansion - limited to children, pregnant, disabled, elderly).
+apply_url: https://www.yourtexasbenefits.com
+effective_date: "2026-01"
+
+conditions:
+  - id: tx_med_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 100% FPL (non-expansion state)
+
+  - id: tx_med_category
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant, pregnant, disabled, senior_65plus]
+    hard_gate: true
+    verifiable: true
+    label: Must be pregnant, have children, elderly, or disabled
+
+  - id: tx_med_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [TX]
+    hard_gate: true
+    verifiable: true
+    label: Texas residency
+
+categorically_qualifies:
+  - extra_help
+  - lifeline

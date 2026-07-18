@@ -1,0 +1,32 @@
+id: earned_income_disregard
+name: Earned Income Disregard (SSI)
+agency: SSA
+category: employment
+jurisdiction: [federal]
+is_hub: false
+description: SSI recipients can earn up to $65/mo + half of remaining earnings without losing benefits.
+apply_url: https://www.ssa.gov/ssi/text-work-ussi.htm
+effective_date: "2026-01"
+
+conditions:
+  - id: eid_enrolled
+    type: categorical
+    measure: enrolled_programs
+    operator: includes_any
+    value: [ssi]
+    hard_gate: true
+    verifiable: true
+    label: Must be a current SSI recipient
+
+  - id: eid_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: ">="
+    value: 1
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Must have some earned income
+
+streamlined_by:
+  - {from: ssi, satisfies: [eid_enrolled]}

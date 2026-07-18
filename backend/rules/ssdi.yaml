@@ -1,0 +1,20 @@
+id: ssdi
+name: Social Security Disability (SSDI)
+agency: SSA
+category: disability
+jurisdiction: [federal]
+is_hub: false
+description: Monthly benefits for workers who become disabled and have enough work credits.
+apply_url: https://www.ssa.gov/disability
+effective_date: "2026-01"
+
+conditions:
+  - id: ssdi_disabled
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [disabled]
+    hard_gate: true
+    verifiable: false
+    label: Must have a qualifying disability
+    description: Disability determination by SSA (medical review required)

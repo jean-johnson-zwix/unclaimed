@@ -1,0 +1,40 @@
+id: tanf_childcare
+name: TANF Child Care
+agency: AZ DES
+category: childcare
+jurisdiction: [AZ]
+is_hub: false
+description: Free child care for TANF recipients participating in work activities.
+apply_url: https://des.az.gov/services/child-and-family/child-care
+effective_date: "2026-01"
+
+conditions:
+  - id: tanf_cc_enrolled
+    type: categorical
+    measure: enrolled_programs
+    operator: includes_any
+    value: [tanf]
+    hard_gate: true
+    verifiable: true
+    label: Must be a current TANF recipient
+
+  - id: tanf_cc_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant]
+    hard_gate: true
+    verifiable: true
+    label: Must have children under 13
+
+  - id: tanf_cc_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+streamlined_by:
+  - {from: tanf, satisfies: [tanf_cc_enrolled]}

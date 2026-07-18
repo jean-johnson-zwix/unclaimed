@@ -1,0 +1,29 @@
+id: emergency_rental
+name: Emergency Rental Assistance
+agency: US Treasury / AZ DES
+category: housing
+jurisdiction: [federal, AZ]
+is_hub: false
+description: Help with past-due rent, utilities, and housing stability services.
+apply_url: https://des.az.gov/services/basic-needs/shelter-housing
+effective_date: "2026-01"
+
+conditions:
+  - id: era_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 80
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 80% FPL (area median)
+
+  - id: era_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

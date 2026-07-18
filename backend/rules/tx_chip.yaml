@@ -1,0 +1,38 @@
+id: tx_chip
+name: Texas CHIP
+agency: TX HHSC
+category: health
+jurisdiction: [federal, TX]
+is_hub: false
+description: Low-cost health coverage for uninsured children in Texas families.
+apply_url: https://www.chipmedicaid.org
+effective_date: "2026-01"
+
+conditions:
+  - id: tx_chip_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 200% FPL
+
+  - id: tx_chip_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant]
+    hard_gate: true
+    verifiable: true
+    label: Must have uninsured children under 19
+
+  - id: tx_chip_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [TX]
+    hard_gate: true
+    verifiable: true
+    label: Texas residency

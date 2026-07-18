@@ -1,0 +1,19 @@
+id: senior_nutrition
+name: Senior Nutrition Program (Meals on Wheels)
+agency: ACL (Admin for Community Living)
+category: nutrition
+jurisdiction: [federal]
+is_hub: false
+description: Free congregate and home-delivered meals for seniors 60+.
+apply_url: https://acl.gov/programs/health-wellness/nutrition-services
+effective_date: "2026-01"
+
+conditions:
+  - id: senior_meals_age
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus]
+    hard_gate: true
+    verifiable: true
+    label: Must be 60 or older

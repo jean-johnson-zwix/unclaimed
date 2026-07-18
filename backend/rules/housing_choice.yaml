@@ -1,0 +1,36 @@
+id: housing_choice
+name: Housing Choice Voucher (Section 8 - AZ)
+agency: HUD / AZ Housing Authority
+category: housing
+jurisdiction: [AZ]
+is_hub: false
+description: Rental assistance voucher covering the gap between 30% of income and fair market rent.
+apply_url: https://housing.az.gov/general-public/housing-choice-section-8-voucher-program
+effective_date: "2026-01"
+
+conditions:
+  - id: hcv_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 50
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 50% area median (approx 50% FPL)
+
+  - id: hcv_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+  - id: hcv_waitlist
+    type: clinical
+    hard_gate: true
+    verifiable: false
+    label: Waitlist availability
+    description: Program has limited slots; placement depends on waitlist opening

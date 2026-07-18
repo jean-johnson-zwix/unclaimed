@@ -1,0 +1,37 @@
+id: foster_care_tuition
+name: AZ Tuition Waiver (Former Foster Youth)
+agency: AZ Board of Regents
+category: education
+jurisdiction: [AZ]
+is_hub: false
+description: Tuition waiver at Arizona public universities and community colleges for former foster youth.
+apply_url: https://azregents.edu
+effective_date: "2026-01"
+
+conditions:
+  - id: foster_tuition_foster
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [foster_child]
+    hard_gate: true
+    verifiable: true
+    label: Must be a former foster child
+
+  - id: foster_tuition_age
+    type: age
+    measure: age
+    operator: "<="
+    value: 26
+    hard_gate: true
+    verifiable: true
+    label: Must be 26 or younger
+
+  - id: foster_tuition_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

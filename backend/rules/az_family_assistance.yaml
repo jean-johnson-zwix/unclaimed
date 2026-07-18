@@ -1,0 +1,48 @@
+id: az_family_assistance
+name: AZ Family Assistance (Cash Aid)
+agency: AZ DES
+category: cash_assistance
+jurisdiction: [AZ]
+is_hub: false
+description: Temporary cash assistance for families with children.
+apply_url: https://des.az.gov/services/basic-needs/cash-assistance
+effective_date: "2026-01"
+
+conditions:
+  - id: az_fa_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 75
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 75% FPL
+
+  - id: az_fa_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant, pregnant]
+    hard_gate: true
+    verifiable: true
+    label: Must have dependent children or be pregnant
+
+  - id: az_fa_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+  - id: az_fa_assets
+    type: asset
+    measure: assets
+    operator: "<="
+    value: 2000
+    unit: usd
+    hard_gate: true
+    verifiable: true
+    label: Assets at or below $2,000

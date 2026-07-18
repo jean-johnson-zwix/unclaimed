@@ -1,0 +1,52 @@
+id: tx_tanf
+name: TANF (Texas)
+agency: TX HHSC
+category: cash_assistance
+jurisdiction: [federal, TX]
+is_hub: true
+description: Temporary cash assistance for families with very low income in Texas.
+apply_url: https://www.yourtexasbenefits.com
+effective_date: "2026-01"
+
+conditions:
+  - id: tx_tanf_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 50
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below ~50% FPL (TX has very low limits)
+
+  - id: tx_tanf_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant, pregnant]
+    hard_gate: true
+    verifiable: true
+    label: Must have dependent children or be pregnant
+
+  - id: tx_tanf_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [TX]
+    hard_gate: true
+    verifiable: true
+    label: Texas residency
+
+  - id: tx_tanf_assets
+    type: asset
+    measure: assets
+    operator: "<="
+    value: 1000
+    unit: usd
+    hard_gate: true
+    verifiable: true
+    label: Assets at or below $1,000
+
+categorically_qualifies:
+  - school_meals
+  - head_start

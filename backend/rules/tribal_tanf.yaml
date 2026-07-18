@@ -1,0 +1,47 @@
+id: tribal_tanf
+name: Tribal TANF (AZ)
+agency: AZ tribal nations
+category: cash_assistance
+jurisdiction: [AZ]
+is_hub: false
+description: Cash assistance for Native American families on or near tribal lands in Arizona.
+apply_url: https://des.az.gov/services/basic-needs/cash-assistance
+effective_date: "2026-01"
+
+conditions:
+  - id: tribal_tanf_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income at or below 100% FPL
+
+  - id: tribal_tanf_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5, infant, pregnant]
+    hard_gate: true
+    verifiable: true
+    label: Must have dependent children or be pregnant
+
+  - id: tribal_tanf_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+  - id: tribal_tanf_tribal
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [native_american]
+    hard_gate: true
+    verifiable: true
+    label: Must be an enrolled tribal member

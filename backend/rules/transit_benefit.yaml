@@ -1,0 +1,28 @@
+id: transit_benefit
+name: Reduced Fare Transit (Valley Metro)
+agency: Valley Metro
+category: transportation
+jurisdiction: [AZ]
+is_hub: false
+description: Half-price bus and light rail passes for seniors, disabled, and Medicare cardholders.
+apply_url: https://www.valleymetro.org/riding-valley-metro/reduced-fare
+effective_date: "2026-01"
+
+conditions:
+  - id: transit_category
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus, disabled]
+    hard_gate: true
+    verifiable: true
+    label: Must be 65+ or have a disability
+
+  - id: transit_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
