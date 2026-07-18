@@ -51,6 +51,33 @@ make clean  # remove caches
 | Rules format | YAML (one file per program) |
 | Tests | pytest |
 
+## How the Engine Works
+
+```
+Profile in
+    |
+    v
+1. Auto-qualify check
+   Enrolled in SSI? -> automatically eligible for Medicaid, SNAP, Lifeline... (skip income checks)
+    |
+    v
+2. Partial credit from other programs
+   Enrolled in SNAP? -> satisfies WIC's income test (but not its other conditions)
+    |
+    v
+3. Evaluate remaining conditions
+   Same logic_group = OR (any passes), groups AND'd together
+   verifiable:false -> "uncertain" (needs agency verification)
+    |
+    v
+4. Verdict
+   Hard gate failed -> ineligible
+   Unverifiable remaining -> uncertain
+   All passed -> likely_eligible
+```
+
+No LLM involved. The graph is the source of truth.
+
 # Knowledge Graph
 
 ![Knowledge Graph](media/graph.png)
