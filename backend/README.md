@@ -51,3 +51,6 @@ make clean  # remove caches
 | Rules format | YAML (one file per program) |
 | Tests | pytest |
 
+# Knowledge Graph
+
+![Knowledge Graph](media/graph.png)
