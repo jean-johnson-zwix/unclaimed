@@ -12,8 +12,8 @@ def evaluate_program(program_id: str, profile: Profile) -> EligibilityResult | N
         return None
 
     fpl = get_fpl(profile.household_size, profile.state)
+    source_url = program.get("apply_url", "")
 
-    # Step 1: Full categorical short-circuit
     cat_sources = graph_store.get_categorical_sources(program_id)
     for src in cat_sources:
         if src["source_program"] in profile.enrolled_in:
@@ -27,8 +27,9 @@ def evaluate_program(program_id: str, profile: Profile) -> EligibilityResult | N
                     label=f"Auto-qualifies via {src['source_program'].upper()}",
                     passed=True,
                     detail=f"Enrollment in {src['source_program'].upper()} categorically qualifies for this program",
+                    source_url=source_url,
                 )],
-                apply_url=program.get("apply_url", ""),
+                apply_url=source_url,
                 effective_date=program.get("effective_date", ""),
             )
 
@@ -57,10 +58,9 @@ def evaluate_program(program_id: str, profile: Profile) -> EligibilityResult | N
         if group_key is None:
             # No group = each condition is AND'd independently
             for cond in group_conds:
-                _eval_single(cond, profile, fpl, adjunctive_satisfied, matched, failed, needs_verification)
+                _eval_single(cond, profile, fpl, adjunctive_satisfied, source_url, matched, failed, needs_verification)
         else:
-            # OR group: at least one must pass
-            _eval_or_group(group_conds, profile, fpl, adjunctive_satisfied, matched, failed, needs_verification)
+            _eval_or_group(group_conds, profile, fpl, adjunctive_satisfied, source_url, matched, failed, needs_verification)
 
     # Step 4: Verdict resolution
     has_hard_fail = any(
@@ -84,7 +84,7 @@ def evaluate_program(program_id: str, profile: Profile) -> EligibilityResult | N
         matched=matched,
         failed=failed,
         needs_verification=needs_verification,
-        apply_url=program.get("apply_url", ""),
+        apply_url=source_url,
         effective_date=program.get("effective_date", ""),
     )
 
@@ -94,6 +94,7 @@ def _eval_single(
     profile: Profile,
     fpl: dict,
     adjunctive_satisfied: set[str],
+    source_url: str,
     matched: list[ConditionResult],
     failed: list[ConditionResult],
     needs_verification: list[ConditionResult],
@@ -105,7 +106,8 @@ def _eval_single(
             condition_id=cond_id,
             label=cond.get("label", ""),
             passed=True,
-            detail="Satisfied adjunctively via current enrollment",
+            detail="Satisfied via current enrollment",
+            source_url=source_url,
         ))
         return
 
@@ -115,10 +117,12 @@ def _eval_single(
             label=cond.get("label", ""),
             passed=None,
             detail=cond.get("description", "Requires agency verification"),
+            source_url=source_url,
         ))
         return
 
     result = check_condition(cond, profile, fpl)
+    result.source_url = source_url
     if result.passed is True:
         matched.append(result)
     elif result.passed is False:
@@ -132,11 +136,11 @@ def _eval_or_group(
     profile: Profile,
     fpl: dict,
     adjunctive_satisfied: set[str],
+    source_url: str,
     matched: list[ConditionResult],
     failed: list[ConditionResult],
     needs_verification: list[ConditionResult],
 ) -> None:
-    # OR: if any condition in the group passes, the group passes
     results: list[ConditionResult] = []
     any_passed = False
     any_unverifiable = False
@@ -149,7 +153,8 @@ def _eval_or_group(
                 condition_id=cond_id,
                 label=cond.get("label", ""),
                 passed=True,
-                detail="Satisfied adjunctively via current enrollment",
+                detail="Satisfied via current enrollment",
+                source_url=source_url,
             ))
             return
 
@@ -160,10 +165,12 @@ def _eval_or_group(
                 label=cond.get("label", ""),
                 passed=None,
                 detail=cond.get("description", "Requires agency verification"),
+                source_url=source_url,
             ))
             continue
 
         result = check_condition(cond, profile, fpl)
+        result.source_url = source_url
         results.append(result)
         if result.passed is True:
             any_passed = True

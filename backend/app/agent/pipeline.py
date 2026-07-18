@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.engine.evaluate import evaluate_program
 from app.graph.queries import query_candidate_programs
 from app.graph.store import graph_store
+from app.guardrails.format import enforce_guardrails
 from app.models import Disclaimers, EligibilityResult, Profile, Unlock
 
 
@@ -18,7 +19,7 @@ def run_pipeline(profile: Profile) -> dict:
 
     results.sort(key=_sort_key)
 
-    return {
+    output = {
         "resolved_profile": profile.model_dump(),
         "results": [r.model_dump() for r in results],
         "summary": {
@@ -30,6 +31,7 @@ def run_pipeline(profile: Profile) -> dict:
         "disclaimers": Disclaimers().model_dump(),
         "meta": {"fpl_year": 2026, "mode": "pipeline"},
     }
+    return enforce_guardrails(output)
 
 
 def run_unlock(program_id: str) -> dict | None:
