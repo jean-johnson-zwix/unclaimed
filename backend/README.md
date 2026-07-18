@@ -2,6 +2,8 @@
 
 AI agent that finds unclaimed government benefits via knowledge-graph reasoning. Models eligibility as a graph and reasons over it with multi-hop categorical logic ("if I enroll in SSI, what else unlocks?").
 
+**61 programs** across 3 states (AZ, CA, TX) + federal. Covers nutrition, health, housing, tax credits, childcare, education, veterans, disability, energy, telecom, and more.
+
 ## Quick Start
 
 ```bash
@@ -57,6 +59,16 @@ curl http://localhost:8000/graph
 
 # Hub programs only
 curl http://localhost:8000/programs?hub=true
+
+# California resident
+curl -X POST http://localhost:8000/screen \
+  -H "Content-Type: application/json" \
+  -d '{"profile":{"household_size":2,"monthly_income":1500,"state":"CA","categories":["has_child_under_5"]}}'
+
+# Texas resident
+curl -X POST http://localhost:8000/screen \
+  -H "Content-Type: application/json" \
+  -d '{"profile":{"household_size":4,"monthly_income":2500,"state":"TX","categories":["has_child","pregnant"]}}'
 ```
 
 ## Make Targets
@@ -110,7 +122,10 @@ No LLM decides eligibility. The graph is the source of truth.
 
 ## Agent Mode
 
-With `"mode": "agent"` on `/screen`, the system runs the same deterministic engine but adds an LLM-generated natural-language explanation. The agent orchestrates tools (get_fpl, query_candidates, evaluate_program, expand_categorical) and falls back to pipeline mode if no LLM provider is available.
+With `"mode": "agent"` on `/screen`, the system runs the same deterministic engine but adds:
+- LLM-generated natural-language explanation grounded in actual matched conditions
+- Freeform text intake (send `"text"` instead of `"profile"`)
+- Automatic fallback to pipeline mode if no LLM provider is available
 
 Configure providers via `.env` (any one is sufficient):
 ```
@@ -120,6 +135,20 @@ OPENROUTER_API_KEY=...
 CEREBRAS_API_KEY=...
 SAMBANOVA_API_KEY=...
 ```
+
+## Benefit Estimates
+
+Each result includes `estimated_benefit` with approximate annual/monthly dollar values based on published averages (CBPP, USDA, IRS). The summary includes `estimated_total_annual` across all likely-eligible programs.
+
+## Multi-State Support
+
+Programs are gated by `jurisdiction`. Currently supported:
+- **AZ** (32 programs) - primary, most comprehensive
+- **CA** (5 state-specific: CalFresh, Medi-Cal, CalWORKs, CalEITC, YCTC)
+- **TX** (5 state-specific: SNAP, Medicaid, TANF, CHIP, WIC)
+- **Federal** (shared across all states)
+
+Set `"state": "CA"` or `"state": "TX"` in the profile to get state-specific results.
 
 # Knowledge Graph
 
