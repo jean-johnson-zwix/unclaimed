@@ -27,3 +27,7 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Arizona residency
+
+streamlined_by:
+  - {from: ssi, satisfies: [era_income]}
+  - {from: tanf, satisfies: [era_income]}

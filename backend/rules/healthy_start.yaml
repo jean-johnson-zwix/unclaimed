@@ -26,3 +26,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Arizona residency
+
+streamlined_by:
+  - {from: medicaid, satisfies: [hs_category]}

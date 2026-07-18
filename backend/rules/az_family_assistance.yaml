@@ -46,3 +46,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Assets at or below $2,000
+
+streamlined_by:
+  - {from: tanf, satisfies: [az_fa_income, az_fa_child]}

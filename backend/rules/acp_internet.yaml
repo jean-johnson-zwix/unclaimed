@@ -18,3 +18,8 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Income at or below 200% FPL
+
+streamlined_by:
+  - {from: snap, satisfies: [acp_income]}
+  - {from: medicaid, satisfies: [acp_income]}
+  - {from: ssi, satisfies: [acp_income]}

@@ -27,3 +27,7 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must be 65+ or disabled (Medicare-eligible)
+
+streamlined_by:
+  - {from: ssi, satisfies: [msp_income, msp_senior]}
+  - {from: medicaid, satisfies: [msp_income]}

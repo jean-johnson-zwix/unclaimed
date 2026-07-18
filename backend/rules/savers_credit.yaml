@@ -36,3 +36,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Cannot be a full-time student
+
+streamlined_by:
+  - {from: eitc, satisfies: [savers_income]}

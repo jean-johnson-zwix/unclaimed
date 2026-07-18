@@ -50,3 +50,6 @@ conditions:
 categorically_qualifies:
   - school_meals
   - head_start
+  - ccdf
+  - free_phone
+  - lifeline

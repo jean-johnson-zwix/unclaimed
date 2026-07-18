@@ -36,3 +36,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Arizona residency
+
+streamlined_by:
+  - {from: ssi, satisfies: [az_prop_income, az_prop_senior]}

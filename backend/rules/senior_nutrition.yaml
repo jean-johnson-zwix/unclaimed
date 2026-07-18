@@ -17,3 +17,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must be 60 or older
+
+streamlined_by:
+  - {from: ssi, satisfies: [senior_meals_age]}

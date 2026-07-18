@@ -45,3 +45,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must be an enrolled tribal member
+
+streamlined_by:
+  - {from: tanf, satisfies: [tribal_tanf_income, tribal_tanf_child]}

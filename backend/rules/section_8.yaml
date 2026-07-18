@@ -25,3 +25,7 @@ conditions:
     verifiable: false
     label: Waitlist availability (agency determination)
     description: Most areas have closed waitlists
+
+streamlined_by:
+  - {from: ssi, satisfies: [section_8_income]}
+  - {from: tanf, satisfies: [section_8_income]}

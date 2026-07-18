@@ -27,3 +27,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Arizona residency
+
+streamlined_by:
+  - {from: ssi, satisfies: [ga_income]}

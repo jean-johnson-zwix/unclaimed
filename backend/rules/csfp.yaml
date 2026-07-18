@@ -27,3 +27,7 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must be 60 years or older
+
+streamlined_by:
+  - {from: snap, satisfies: [csfp_income]}
+  - {from: ssi, satisfies: [csfp_income]}

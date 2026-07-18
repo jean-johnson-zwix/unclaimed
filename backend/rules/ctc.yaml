@@ -27,3 +27,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must have qualifying child under 17
+
+streamlined_by:
+  - {from: eitc, satisfies: [ctc_income]}

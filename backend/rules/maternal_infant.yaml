@@ -27,3 +27,7 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Income at or below 200% FPL
+
+streamlined_by:
+  - {from: medicaid, satisfies: [mih_income]}
+  - {from: wic, satisfies: [mih_income, mih_category]}

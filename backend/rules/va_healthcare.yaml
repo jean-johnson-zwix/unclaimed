@@ -17,3 +17,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must be a veteran
+
+categorically_qualifies:
+  - veterans_pension

@@ -27,3 +27,8 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Arizona residency
+
+streamlined_by:
+  - {from: snap, satisfies: [liheap_income]}
+  - {from: ssi, satisfies: [liheap_income]}
+  - {from: tanf, satisfies: [liheap_income]}

@@ -36,3 +36,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Texas residency
+
+streamlined_by:
+  - {from: tx_medicaid, satisfies: [tx_chip_income]}

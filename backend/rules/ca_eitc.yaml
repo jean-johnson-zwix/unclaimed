@@ -37,3 +37,6 @@ conditions:
     hard_gate: true
     verifiable: true
     label: California residency
+
+categorically_qualifies:
+  - ca_yctc

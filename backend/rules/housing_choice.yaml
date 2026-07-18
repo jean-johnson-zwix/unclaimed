@@ -34,3 +34,7 @@ conditions:
     verifiable: false
     label: Waitlist availability
     description: Program has limited slots; placement depends on waitlist opening
+
+streamlined_by:
+  - {from: ssi, satisfies: [hcv_income]}
+  - {from: tanf, satisfies: [hcv_income]}

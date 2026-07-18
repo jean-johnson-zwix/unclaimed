@@ -28,3 +28,7 @@ conditions:
     hard_gate: true
     verifiable: true
     label: Must have earned income
+
+streamlined_by:
+  - {from: snap, satisfies: [eitc_income]}
+  - {from: ssi, satisfies: [eitc_income]}

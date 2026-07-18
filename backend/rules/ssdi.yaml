@@ -18,3 +18,8 @@ conditions:
     verifiable: false
     label: Must have a qualifying disability
     description: Disability determination by SSA (medical review required)
+
+categorically_qualifies:
+  - medicare_savings
+  - extra_help
+  - able_account
