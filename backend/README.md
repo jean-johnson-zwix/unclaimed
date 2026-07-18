@@ -24,10 +24,30 @@ curl http://localhost:8000/health
 | Method | Path | Purpose |
 |--------|------|---------|
 | GET | `/health` | Liveness check |
-| POST | `/screen` | Situation → ranked eligibility results |
+| POST | `/screen` | Situation -> ranked eligibility results |
 | POST | `/unlock` | "If I enroll in X, what unlocks?" cascade |
-| GET | `/graph` | Program graph for visualization |
-| GET | `/programs` | Program catalog |
+| GET | `/graph` | Program graph for visualization (filterable by `category`) |
+| GET | `/programs` | Program catalog (filterable by `category`, `jurisdiction`, `hub`) |
+
+### Sample requests
+
+```bash
+# Screen a household
+curl -X POST http://localhost:8000/screen \
+  -H "Content-Type: application/json" \
+  -d '{"profile":{"household_size":3,"monthly_income":2000,"state":"AZ","categories":["has_child_under_5","has_child","pregnant"],"enrolled_in":["ssi"]}}'
+
+# SSI unlock cascade
+curl -X POST http://localhost:8000/unlock \
+  -H "Content-Type: application/json" \
+  -d '{"program_id":"ssi"}'
+
+# Full program graph
+curl http://localhost:8000/graph
+
+# Hub programs only
+curl http://localhost:8000/programs?hub=true
+```
 
 ## Make Targets
 
