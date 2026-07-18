@@ -39,7 +39,8 @@ def health():
 
 
 class ScreenRequest(BaseModel):
-    profile: Profile
+    profile: Profile | None = None
+    text: str | None = None
     mode: str = "pipeline"
 
 
@@ -49,13 +50,22 @@ class UnlockRequest(BaseModel):
 
 @app.post("/screen")
 async def screen(req: ScreenRequest):
+    profile = req.profile
+    if profile is None and req.text:
+        from app.agent.intake import parse_intake
+        profile = await parse_intake(req.text)
+        if profile is None:
+            raise HTTPException(status_code=422, detail={"error": {"code": "intake_failed", "message": "Could not parse freeform text into a profile. Provide a structured profile instead."}})
+    if profile is None:
+        raise HTTPException(status_code=422, detail={"error": {"code": "missing_profile", "message": "Provide either 'profile' or 'text'."}})
+
     if req.mode == "agent":
         try:
             from app.agent.loop import run_agent_loop
-            return await run_agent_loop(req.profile)
+            return await run_agent_loop(profile)
         except Exception as e:
             log.warning("Agent mode failed, falling back to pipeline: %s", e)
-    return run_pipeline(req.profile)
+    return run_pipeline(profile)
 
 
 @app.post("/unlock")

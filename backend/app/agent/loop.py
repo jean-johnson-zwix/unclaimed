@@ -68,17 +68,20 @@ async def _get_explanation(providers, profile: dict, results: list[dict]) -> str
     if not results:
         return "No programs found matching this profile."
 
-    summary_data = json.dumps({
-        "profile": profile,
-        "findings": [
-            {"program": r.get("program_name", r["program_id"]), "verdict": r["verdict"]}
-            for r in results[:20]
-        ],
-    }, default=str)
+    findings = []
+    for r in results[:15]:
+        entry = {"program": r.get("program_name", r["program_id"]), "verdict": r["verdict"]}
+        if r.get("matched"):
+            entry["reasons"] = [m["label"] for m in r["matched"][:3]]
+        if r.get("needs_verification"):
+            entry["needs_verification"] = [n["label"] for n in r["needs_verification"]]
+        findings.append(entry)
+
+    summary_data = json.dumps({"findings": findings}, default=str)
 
     messages = [
-        {"role": "system", "content": "You summarize government benefits screening results. Use hedged language: 'appears likely eligible', 'may qualify'. Never say 'you qualify'. Be concise."},
-        {"role": "user", "content": f"Summarize in 2-3 sentences. Highlight key findings, don't list every program:\n{summary_data}"},
+        {"role": "system", "content": "You explain government benefits screening results. Reference the specific conditions that matched (from the 'reasons' field). Use hedged language: 'appears likely eligible', 'may qualify'. Never say 'you qualify'. Be concise - 3-5 sentences max."},
+        {"role": "user", "content": f"Explain these results to the user, referencing the specific conditions that matched:\n{summary_data}"},
     ]
 
     for p in providers:
