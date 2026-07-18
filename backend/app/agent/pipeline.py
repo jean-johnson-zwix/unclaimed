@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.clients.benefit_estimate import estimate_benefit
 from app.engine.evaluate import evaluate_program
 from app.graph.queries import query_candidate_programs
 from app.graph.store import graph_store
@@ -15,9 +16,16 @@ def run_pipeline(profile: Profile) -> dict:
         result = evaluate_program(pid, profile)
         if result and result.verdict != "ineligible":
             result.unlocks = _get_unlocks(pid)
+            result.estimated_benefit = estimate_benefit(pid, profile)
             results.append(result)
 
     results.sort(key=_sort_key)
+
+    total_annual = sum(
+        r.estimated_benefit["estimated_annual"]
+        for r in results
+        if r.estimated_benefit and r.verdict == "likely_eligible"
+    )
 
     output = {
         "resolved_profile": profile.model_dump(),
@@ -26,7 +34,7 @@ def run_pipeline(profile: Profile) -> dict:
             "likely_eligible": sum(1 for r in results if r.verdict == "likely_eligible"),
             "uncertain": sum(1 for r in results if r.verdict == "uncertain"),
             "programs_checked": len(candidate_ids),
-            "estimated_total_annual": None,
+            "estimated_total_annual": total_annual or None,
         },
         "disclaimers": Disclaimers().model_dump(),
         "meta": {"fpl_year": 2026, "mode": "pipeline"},
