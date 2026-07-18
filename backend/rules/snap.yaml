@@ -1,0 +1,43 @@
+id: snap
+name: SNAP (Nutrition Assistance)
+agency: USDA / AZ DES
+category: nutrition
+jurisdiction: [federal, AZ]
+is_hub: true
+description: Monthly food benefits on an EBT card.
+apply_url: https://www.healthearizonaplus.gov
+effective_date: "2026-01"
+
+conditions:
+  - id: snap_gross_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Gross income limit (200% FPL for AZ broad-based categorical)
+
+  - id: snap_assets
+    type: asset
+    measure: assets
+    operator: "<="
+    value: 3750
+    unit: usd
+    hard_gate: false
+    verifiable: true
+    label: Asset limit (AZ uses broad-based categorical, waived for most)
+
+  - id: snap_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+categorically_qualifies:
+  - school_meals
+  - lifeline

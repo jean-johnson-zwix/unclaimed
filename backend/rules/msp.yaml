@@ -1,0 +1,29 @@
+id: msp
+name: Medicare Savings Program
+agency: CMS / AHCCCS
+category: health
+jurisdiction: [federal, AZ]
+is_hub: false
+description: Helps pay Medicare premiums, deductibles, and copays.
+apply_url: https://www.azahcccs.gov
+effective_date: "2026-01"
+
+conditions:
+  - id: msp_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 135
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (135% FPL for QMB)
+
+  - id: msp_senior
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus, disabled]
+    hard_gate: true
+    verifiable: true
+    label: Must be 65+ or disabled (Medicare-eligible)

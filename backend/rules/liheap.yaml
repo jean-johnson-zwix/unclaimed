@@ -1,0 +1,29 @@
+id: liheap
+name: LIHEAP (Utility Assistance)
+agency: HHS / AZ DES
+category: energy
+jurisdiction: [federal, AZ]
+is_hub: false
+description: Help paying heating and cooling bills.
+apply_url: https://des.az.gov/services/basic-needs/shelter-housing/utility-assistance
+effective_date: "2026-01"
+
+conditions:
+  - id: liheap_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 150
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (150% FPL)
+
+  - id: liheap_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

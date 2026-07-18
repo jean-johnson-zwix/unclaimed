@@ -1,0 +1,29 @@
+id: head_start
+name: Head Start
+agency: HHS ACF
+category: education
+jurisdiction: [federal]
+is_hub: false
+description: Early childhood education for low-income families.
+apply_url: https://www.acf.hhs.gov/ohs
+effective_date: "2026-01"
+
+conditions:
+  - id: head_start_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (100% FPL)
+
+  - id: head_start_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child_under_5, infant]
+    hard_gate: true
+    verifiable: true
+    label: Child under 5

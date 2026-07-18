@@ -1,0 +1,56 @@
+id: ssi
+name: SSI (Supplemental Security Income)
+agency: SSA
+category: cash
+jurisdiction: [federal]
+is_hub: true
+description: Monthly cash for aged, blind, or disabled individuals with limited income and resources.
+apply_url: https://www.ssa.gov/ssi
+effective_date: "2026-01"
+
+conditions:
+  - id: ssi_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit
+
+  - id: ssi_assets
+    type: asset
+    measure: assets
+    operator: "<="
+    value: 2000
+    unit: usd
+    hard_gate: true
+    verifiable: true
+    label: Asset limit ($2,000 individual)
+
+  - id: ssi_category
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus, disabled, blind]
+    hard_gate: true
+    verifiable: true
+    logic_group: ssi_cat
+    label: Aged, blind, or disabled
+
+  - id: ssi_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: false
+    verifiable: true
+    label: US residency
+
+categorically_qualifies:
+  - medicaid
+  - snap
+  - extra_help
+  - weatherization
+  - lifeline

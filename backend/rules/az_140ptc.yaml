@@ -1,0 +1,38 @@
+id: az_140ptc
+name: AZ Property Tax Refund Credit (Form 140PTC)
+agency: AZDOR
+category: tax_credit
+jurisdiction: [AZ]
+is_hub: false
+description: Arizona refundable credit for property taxes or rent paid by low-income seniors/disabled.
+apply_url: https://azdor.gov/forms/individual/property-tax-refund-credit
+effective_date: "2026-01"
+
+conditions:
+  - id: az_140ptc_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (approx $3,751 single)
+
+  - id: az_140ptc_age
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [senior_65plus, disabled]
+    hard_gate: true
+    verifiable: true
+    label: Must be 65+ or receiving SSI disability
+
+  - id: az_140ptc_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

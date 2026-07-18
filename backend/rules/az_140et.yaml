@@ -1,0 +1,29 @@
+id: az_140et
+name: AZ Increased Excise Tax Credit (Form 140ET)
+agency: AZDOR
+category: tax_credit
+jurisdiction: [AZ]
+is_hub: false
+description: Arizona refundable credit to offset sales tax burden for low-income residents.
+apply_url: https://azdor.gov/forms/individual/increased-excise-tax-credit
+effective_date: "2026-01"
+
+conditions:
+  - id: az_140et_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit
+
+  - id: az_140et_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency

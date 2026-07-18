@@ -1,0 +1,30 @@
+id: eitc
+name: Earned Income Tax Credit (EITC)
+agency: IRS
+category: tax_credit
+jurisdiction: [federal]
+is_hub: false
+description: Refundable tax credit for low-to-moderate income workers.
+apply_url: https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit-eitc
+effective_date: "2026-01"
+
+conditions:
+  - id: eitc_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 300
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (varies by filing status and children, ~300% FPL approx)
+
+  - id: eitc_income_floor
+    type: income_threshold
+    measure: gross_annual_income
+    operator: ">="
+    value: 1
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Must have earned income

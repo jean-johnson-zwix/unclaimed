@@ -1,0 +1,32 @@
+id: school_meals
+name: Free/Reduced School Meals
+agency: USDA FNS
+category: nutrition
+jurisdiction: [federal]
+is_hub: false
+description: Free or reduced-price breakfast and lunch at school.
+apply_url: https://www.fns.usda.gov/nslp
+effective_date: "2026-01"
+
+conditions:
+  - id: school_meals_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 185
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (185% FPL for reduced, 130% for free)
+
+  - id: school_meals_child
+    type: categorical
+    measure: household_categories
+    operator: includes_any
+    value: [has_child, has_child_under_5]
+    hard_gate: true
+    verifiable: true
+    label: Must have school-age children
+
+categorically_qualifies:
+  - summer_ebt

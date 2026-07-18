@@ -1,0 +1,30 @@
+id: aca_ptc
+name: ACA Premium Tax Credit
+agency: IRS
+category: tax_credit
+jurisdiction: [federal]
+is_hub: false
+description: Tax credit to lower monthly health insurance premiums on the Marketplace.
+apply_url: https://www.healthcare.gov/lower-costs/
+effective_date: "2026-01"
+
+conditions:
+  - id: aca_ptc_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 400
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (100-400% FPL)
+
+  - id: aca_ptc_income_floor
+    type: income_threshold
+    measure: gross_annual_income
+    operator: ">="
+    value: 100
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income floor (must be above 100% FPL)

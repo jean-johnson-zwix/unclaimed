@@ -1,0 +1,38 @@
+id: savers_credit
+name: Saver's Credit
+agency: IRS
+category: tax_credit
+jurisdiction: [federal]
+is_hub: false
+description: Tax credit for low-income retirement savers (up to $1,000).
+apply_url: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit
+effective_date: "2026-01"
+
+conditions:
+  - id: savers_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 200
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (~$38k single, ~$76k joint, approximated as 200% FPL)
+
+  - id: savers_age
+    type: age
+    measure: age
+    operator: ">="
+    value: 18
+    hard_gate: true
+    verifiable: true
+    label: Must be 18 or older
+
+  - id: savers_not_student
+    type: categorical
+    measure: household_categories
+    operator: excludes
+    value: [student]
+    hard_gate: true
+    verifiable: true
+    label: Cannot be a full-time student

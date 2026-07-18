@@ -1,0 +1,34 @@
+id: medicaid
+name: AHCCCS (Arizona Medicaid)
+agency: AHCCCS
+category: health
+jurisdiction: [federal, AZ]
+is_hub: true
+description: Free or low-cost health coverage in Arizona.
+apply_url: https://www.healthearizonaplus.gov
+effective_date: "2026-01"
+
+conditions:
+  - id: medicaid_income
+    type: income_threshold
+    measure: gross_annual_income
+    operator: "<="
+    value: 138
+    unit: pct_fpl
+    hard_gate: true
+    verifiable: true
+    label: Income limit (138% FPL under expansion)
+
+  - id: medicaid_geographic
+    type: geographic
+    measure: state
+    operator: in
+    value: [AZ]
+    hard_gate: true
+    verifiable: true
+    label: Arizona residency
+
+categorically_qualifies:
+  - extra_help
+  - lifeline
+  - school_meals
