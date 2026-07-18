@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import logging
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +9,8 @@ from app.agent.pipeline import run_pipeline, run_unlock
 from app.graph.loader import load_all_rules
 from app.graph.store import graph_store
 from app.models import Profile
+
+log = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -37,6 +40,7 @@ def health():
 
 class ScreenRequest(BaseModel):
     profile: Profile
+    mode: str = "pipeline"
 
 
 class UnlockRequest(BaseModel):
@@ -44,7 +48,13 @@ class UnlockRequest(BaseModel):
 
 
 @app.post("/screen")
-def screen(req: ScreenRequest):
+async def screen(req: ScreenRequest):
+    if req.mode == "agent":
+        try:
+            from app.agent.loop import run_agent_loop
+            return await run_agent_loop(req.profile)
+        except Exception as e:
+            log.warning("Agent mode failed, falling back to pipeline: %s", e)
     return run_pipeline(req.profile)
 
 
