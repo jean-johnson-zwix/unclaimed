@@ -7,7 +7,7 @@ from typing import Any
 from openai import AsyncOpenAI
 
 from app.agent.prompts import SCREENING_SYSTEM_PROMPT
-from app.agent.tools import TOOL_SCHEMAS, dispatch_tool
+from app.agent.tools import dispatch_tool
 from app.clients.benefit_estimate import estimate_benefit
 from app.guardrails.format import enforce_guardrails
 from app.llm import get_providers

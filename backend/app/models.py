@@ -46,18 +46,6 @@ class Unlock(BaseModel):
     satisfies: list[str] | None = None
 
 
-class ProgramSummary(BaseModel):
-    id: str
-    name: str = ""
-    agency: str = ""
-    category: str = ""
-    jurisdiction: list[str] = []
-    is_hub: bool = False
-    description: str = ""
-    conditions_summary: str = ""
-    apply_url: str = ""
-    effective_date: str = ""
-
 
 class Disclaimers(BaseModel):
     not_a_determination: str = "This is a preliminary screening, not an official eligibility determination. Verify with each agency."
