@@ -10,11 +10,11 @@ from app.agent.prompts import SCREENING_SYSTEM_PROMPT
 from app.agent.tools import TOOL_SCHEMAS, dispatch_tool
 from app.guardrails.format import enforce_guardrails
 from app.llm import get_providers
-from app.models import Profile
+from app.models import Disclaimers, EligibilityResult, Profile
 
 log = logging.getLogger(__name__)
 
-MAX_ITERATIONS = 10
+MAX_ITERATIONS = 15
 
 
 async def run_agent_loop(profile: Profile) -> dict:
@@ -22,74 +22,86 @@ async def run_agent_loop(profile: Profile) -> dict:
     if not providers:
         raise RuntimeError("No LLM providers configured")
 
-    profile_json = profile.model_dump_json()
-    messages: list[dict[str, Any]] = [
-        {"role": "system", "content": SCREENING_SYSTEM_PROMPT},
-        {"role": "user", "content": f"Screen this profile for eligible benefits:\n{profile_json}"},
+    profile_dict = profile.model_dump()
+
+    # ponytail: deterministic pre-seeding - gather results ourselves, then ask LLM to explain
+    fpl = dispatch_tool("get_fpl", {"household_size": profile.household_size, "state": profile.state})
+    log.warning("[agent] tool=get_fpl | result=%s", fpl)
+
+    candidates = dispatch_tool("query_candidate_programs", {"profile": profile_dict})
+    log.warning("[agent] tool=query_candidate_programs | count=%d | ids=%s", candidates["count"], candidates["candidate_program_ids"])
+
+    results: list[dict] = []
+    for pid in candidates["candidate_program_ids"]:
+        r = dispatch_tool("evaluate_program", {"program_id": pid, "profile": profile_dict})
+        log.warning("[agent] tool=evaluate_program | program=%s | verdict=%s", pid, r.get("verdict", r.get("error", "?")))
+        if "verdict" in r:
+            results.append(r)
+
+    for pid in profile.enrolled_in:
+        expansion = dispatch_tool("expand_categorical", {"program_id": pid})
+        log.warning("[agent] tool=expand_categorical | program=%s | unlocked=%d nodes", pid, len(expansion.get("nodes", [])))
+
+    eligible = [r for r in results if r.get("verdict") != "ineligible"]
+    eligible.sort(key=lambda r: (0 if r["verdict"] == "likely_eligible" else 1, r.get("program_id", "")))
+
+    explanation = await _get_explanation(providers, profile_dict, eligible)
+
+    output = {
+        "resolved_profile": profile_dict,
+        "results": eligible,
+        "summary": {
+            "likely_eligible": sum(1 for r in eligible if r["verdict"] == "likely_eligible"),
+            "uncertain": sum(1 for r in eligible if r["verdict"] == "uncertain"),
+            "programs_checked": len(results),
+            "estimated_total_annual": None,
+            "explanation": explanation,
+        },
+        "disclaimers": Disclaimers().model_dump(),
+        "meta": {"mode": "agent", "tool_calls": len(candidates["candidate_program_ids"]) + 2},
+    }
+    return enforce_guardrails(output)
+
+
+async def _get_explanation(providers, profile: dict, results: list[dict]) -> str:
+    """Ask the LLM to narrate the results in hedged natural language."""
+    if not results:
+        return "No programs found matching this profile."
+
+    summary_data = json.dumps({
+        "profile": profile,
+        "findings": [
+            {"program": r.get("program_name", r["program_id"]), "verdict": r["verdict"]}
+            for r in results[:20]
+        ],
+    }, default=str)
+
+    messages = [
+        {"role": "system", "content": "You summarize government benefits screening results. Use hedged language: 'appears likely eligible', 'may qualify'. Never say 'you qualify'. Be concise."},
+        {"role": "user", "content": f"Summarize in 2-3 sentences. Highlight key findings, don't list every program:\n{summary_data}"},
     ]
 
-    last_err: Exception | None = None
     for p in providers:
         if not p.rate_limiter.is_allowed():
             continue
         try:
-            result = await _loop_with_provider(p, messages)
-            return result
+            client = AsyncOpenAI(base_url=p.base_url, api_key=p.api_key)
+            extra: dict[str, Any] = {}
+            if p.extra_headers:
+                extra["extra_headers"] = p.extra_headers
+            p.rate_limiter.record()
+            log.warning("[agent] llm_call=explanation | provider=%s | model=%s", p.name, p.model)
+            resp = await client.chat.completions.create(
+                model=p.model,
+                messages=messages,
+                temperature=0.3,
+                max_tokens=150,
+                **extra,
+            )
+            text = resp.choices[0].message.content or ""
+            log.warning("[agent] llm_result=explanation | provider=%s | response=%s", p.name, text[:200])
+            return text
         except Exception as e:
-            log.warning("Agent loop failed with provider %s: %s", p.name, e)
-            last_err = e
+            log.warning("[agent] llm_error=explanation | provider=%s | error=%s", p.name, e)
 
-    raise RuntimeError("Agent loop failed on all providers") from last_err
-
-
-async def _loop_with_provider(provider, messages: list[dict[str, Any]]) -> dict:
-    client = AsyncOpenAI(base_url=provider.base_url, api_key=provider.api_key)
-    extra: dict[str, Any] = {}
-    if provider.extra_headers:
-        extra["extra_headers"] = provider.extra_headers
-
-    for _ in range(MAX_ITERATIONS):
-        provider.rate_limiter.record()
-        resp = await client.chat.completions.create(
-            model=provider.model,
-            messages=messages,
-            tools=TOOL_SCHEMAS,
-            temperature=0.0,
-            max_tokens=2048,
-            **extra,
-        )
-        choice = resp.choices[0]
-
-        if choice.finish_reason == "tool_calls" or choice.message.tool_calls:
-            messages.append(choice.message.model_dump(exclude_none=True))
-            for tc in choice.message.tool_calls:
-                args = json.loads(tc.function.arguments)
-                log.info("Tool call: %s(%s)", tc.function.name, list(args.keys()))
-                result = dispatch_tool(tc.function.name, args)
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc.id,
-                    "content": json.dumps(result, default=str),
-                })
-        else:
-            text = choice.message.content or ""
-            return _parse_agent_output(text)
-
-    return _parse_agent_output("Agent reached max iterations without completing.")
-
-
-def _parse_agent_output(text: str) -> dict:
-    # ponytail: try to parse JSON from agent, fall back to wrapping text
-    try:
-        data = json.loads(text)
-        if "results" in data:
-            data.setdefault("meta", {})["mode"] = "agent"
-            return enforce_guardrails(data)
-    except (json.JSONDecodeError, TypeError):
-        pass
-
-    return enforce_guardrails({
-        "results": [],
-        "summary": {"agent_response": text},
-        "meta": {"mode": "agent", "raw": True},
-    })
+    return ""

@@ -4,8 +4,12 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
+from dotenv import load_dotenv
 from openai import AsyncOpenAI
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 log = logging.getLogger(__name__)
 
