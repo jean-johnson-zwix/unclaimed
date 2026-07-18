@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from app.agent.pipeline import run_pipeline, run_unlock
@@ -27,6 +29,41 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _error_payload(detail: object, default_code: str = "internal_error", default_message: str = "Unexpected error") -> dict:
+    if isinstance(detail, dict):
+        if isinstance(detail.get("error"), dict):
+            error = detail["error"]
+            return {
+                "code": error.get("code", default_code),
+                "message": error.get("message", default_message),
+                "details": error.get("details", {}),
+            }
+        if "message" in detail:
+            return {"code": detail.get("code", default_code), "message": str(detail["message"]), "details": detail.get("details", {})}
+    if isinstance(detail, str):
+        return {"code": default_code, "message": detail, "details": {}}
+    return {"code": default_code, "message": default_message, "details": {}}
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(_: Request, exc: HTTPException) -> JSONResponse:
+    payload = _error_payload(exc.detail, default_code="internal_error", default_message="Request failed")
+    return JSONResponse(status_code=exc.status_code, content={"error": payload})
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_: Request, exc: RequestValidationError) -> JSONResponse:
+    payload = _error_payload({"code": "invalid_profile", "message": "Request body is invalid", "details": exc.errors()}, default_code="invalid_profile", default_message="Request body is invalid")
+    return JSONResponse(status_code=422, content={"error": payload})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(_: Request, exc: Exception) -> JSONResponse:
+    log.exception("Unhandled exception", exc_info=exc)
+    payload = _error_payload({"code": "internal_error", "message": "Unexpected server error", "details": {}})
+    return JSONResponse(status_code=500, content={"error": payload})
 
 
 @app.get("/health")
@@ -55,9 +92,9 @@ async def screen(req: ScreenRequest):
         from app.agent.intake import parse_intake
         profile = await parse_intake(req.text)
         if profile is None:
-            raise HTTPException(status_code=422, detail={"error": {"code": "intake_failed", "message": "Could not parse freeform text into a profile. Provide a structured profile instead."}})
+            raise HTTPException(status_code=422, detail={"error": {"code": "intake_failed", "message": "Could not parse freeform text into a profile. Provide a structured profile instead.", "details": {}}})
     if profile is None:
-        raise HTTPException(status_code=422, detail={"error": {"code": "missing_profile", "message": "Provide either 'profile' or 'text'."}})
+        raise HTTPException(status_code=422, detail={"error": {"code": "missing_profile", "message": "Provide either 'profile' or 'text'.", "details": {}}})
 
     if req.mode == "agent":
         try:
@@ -72,7 +109,7 @@ async def screen(req: ScreenRequest):
 def unlock(req: UnlockRequest):
     result = run_unlock(req.program_id)
     if not result:
-        raise HTTPException(status_code=404, detail={"error": {"code": "unknown_program", "message": f"Program '{req.program_id}' not found"}})
+        raise HTTPException(status_code=404, detail={"error": {"code": "unknown_program", "message": f"Program '{req.program_id}' not found", "details": {}}})
     return result
 
 
