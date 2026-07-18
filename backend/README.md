@@ -24,7 +24,7 @@ curl http://localhost:8000/health
 | Method | Path | Purpose |
 |--------|------|---------|
 | GET | `/health` | Liveness check |
-| POST | `/screen` | Situation -> ranked eligibility results |
+| POST | `/screen` | Situation -> ranked eligibility results (supports `mode: "agent"\|"pipeline"`) |
 | POST | `/unlock` | "If I enroll in X, what unlocks?" cascade |
 | GET | `/graph` | Program graph for visualization (filterable by `category`) |
 | GET | `/programs` | Program catalog (filterable by `category`, `jurisdiction`, `hub`) |
@@ -32,10 +32,15 @@ curl http://localhost:8000/health
 ### Sample requests
 
 ```bash
-# Screen a household
+# Screen a household (pipeline mode, default - no LLM needed)
 curl -X POST http://localhost:8000/screen \
   -H "Content-Type: application/json" \
   -d '{"profile":{"household_size":3,"monthly_income":2000,"state":"AZ","categories":["has_child_under_5","has_child","pregnant"],"enrolled_in":["ssi"]}}'
+
+# Screen with agent mode (requires LLM API key, adds NL explanation)
+curl -X POST http://localhost:8000/screen \
+  -H "Content-Type: application/json" \
+  -d '{"profile":{"household_size":3,"monthly_income":2000,"state":"AZ","categories":["has_child_under_5","has_child","pregnant"],"enrolled_in":["ssi"]},"mode":"agent"}'
 
 # SSI unlock cascade
 curl -X POST http://localhost:8000/unlock \
@@ -96,7 +101,20 @@ Profile in
    All passed -> likely_eligible
 ```
 
-No LLM involved. The graph is the source of truth.
+No LLM decides eligibility. The graph is the source of truth.
+
+## Agent Mode
+
+With `"mode": "agent"` on `/screen`, the system runs the same deterministic engine but adds an LLM-generated natural-language explanation. The agent orchestrates tools (get_fpl, query_candidates, evaluate_program, expand_categorical) and falls back to pipeline mode if no LLM provider is available.
+
+Configure providers via `.env` (any one is sufficient):
+```
+GROQ_API_KEY=...
+GEMINI_API_KEY=...
+OPENROUTER_API_KEY=...
+CEREBRAS_API_KEY=...
+SAMBANOVA_API_KEY=...
+```
 
 # Knowledge Graph
 
