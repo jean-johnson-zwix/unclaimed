@@ -150,6 +150,10 @@ Programs are gated by `jurisdiction`. Currently supported:
 
 Set `"state": "CA"` or `"state": "TX"` in the profile to get state-specific results.
 
+# Architecture
+
+![Architecture](media/architecture.png)
+
 # Knowledge Graph
 
 ![Knowledge Graph](media/graph.png)
