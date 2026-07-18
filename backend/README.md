@@ -35,13 +35,19 @@ curl http://localhost:8000/health
 make sync   # install deps
 make run    # dev server with reload
 make test   # pytest
+make graph  # interactive graph visualization (graph.html)
 make clean  # remove caches
 ```
 
-## Architecture
+## Tech Stack
 
-- **Knowledge graph** (NetworkX) - programs + conditions + categorical edges, loaded from `rules/*.yaml`
-- **Deterministic engine** - sole authority on eligibility verdicts; LLM never decides
-- **Agent loop** - OpenAI-compatible tool-calling; wraps the deterministic pipeline
-- **Guardrails** - hedged language, provenance, disclaimers on every result
+| Concern | Choice |
+|---------|--------|
+| Language | Python 3.11+ |
+| Package manager | uv |
+| API | FastAPI + Pydantic |
+| Graph store | NetworkX |
+| LLM | OpenAI-compatible (Groq, Together, Gemini, Ollama) |
+| Rules format | YAML (one file per program) |
+| Tests | pytest |
 
