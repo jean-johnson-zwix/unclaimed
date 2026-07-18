@@ -8,6 +8,7 @@ from openai import AsyncOpenAI
 
 from app.agent.prompts import SCREENING_SYSTEM_PROMPT
 from app.agent.tools import TOOL_SCHEMAS, dispatch_tool
+from app.clients.benefit_estimate import estimate_benefit
 from app.guardrails.format import enforce_guardrails
 from app.llm import get_providers
 from app.models import Disclaimers, EligibilityResult, Profile
@@ -36,6 +37,7 @@ async def run_agent_loop(profile: Profile) -> dict:
         r = dispatch_tool("evaluate_program", {"program_id": pid, "profile": profile_dict})
         log.warning("[agent] tool=evaluate_program | program=%s | verdict=%s", pid, r.get("verdict", r.get("error", "?")))
         if "verdict" in r:
+            r["estimated_benefit"] = estimate_benefit(pid, profile)
             results.append(r)
 
     for pid in profile.enrolled_in:
@@ -54,7 +56,11 @@ async def run_agent_loop(profile: Profile) -> dict:
             "likely_eligible": sum(1 for r in eligible if r["verdict"] == "likely_eligible"),
             "uncertain": sum(1 for r in eligible if r["verdict"] == "uncertain"),
             "programs_checked": len(results),
-            "estimated_total_annual": None,
+            "estimated_total_annual": sum(
+                r["estimated_benefit"]["estimated_annual"]
+                for r in eligible
+                if r.get("estimated_benefit") and r["verdict"] == "likely_eligible"
+            ) or None,
             "explanation": explanation,
         },
         "disclaimers": Disclaimers().model_dump(),
