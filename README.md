@@ -13,10 +13,39 @@ The UI is designed as a split-screen dashboard with:
 
 ![Unclaimed Benefits Agent](./app-screenshot.png)
 
-## How to run
+## Quick Start
 
-1. Navigate to the `frontend` folder.
-2. Install dependencies with `npm install`.
-3. Start the app with `npm run dev`.
+### Backend
 
-The screenshot above shows the current interface and should appear once the app is running locally.
+**With Docker (recommended):**
+
+```bash
+cd backend
+cp .env.example .env   # fill in your API keys
+docker compose up --build
+```
+
+**Without Docker:**
+
+```bash
+cd backend
+cp .env.example .env   # fill in your API keys
+make sync              # install dependencies (requires uv)
+make run               # starts server on port 8000
+```
+
+API available at `http://localhost:8000`. See `docs/API_SPEC.md` for endpoints.
+
+**Run tests:**
+
+```bash
+make test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
