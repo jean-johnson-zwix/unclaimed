@@ -6,7 +6,6 @@ from typing import Any, Protocol
 
 
 class GraphStore(Protocol):
-    """Minimal interface — add methods as the engine/queries need them."""
 
     def add_program(self, program_id: str, **attrs: Any) -> None: ...
     def add_condition(self, condition_id: str, **attrs: Any) -> None: ...
@@ -21,9 +20,6 @@ class GraphStore(Protocol):
     def program_count(self) -> int: ...
 
 
-# ---------------------------------------------------------------------------
-# NetworkX implementation (zero-infra default)
-# ---------------------------------------------------------------------------
 import networkx as nx
 
 
@@ -126,7 +122,4 @@ class NetworkXStore:
         return sum(1 for _, d in self._g.nodes(data=True) if d.get("node_type") == "program")
 
 
-# ---------------------------------------------------------------------------
-# Singleton — swap implementation here when Neo4j is ready
-# ---------------------------------------------------------------------------
 graph_store: GraphStore = NetworkXStore()

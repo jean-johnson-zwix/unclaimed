@@ -7,7 +7,7 @@ app = FastAPI(title="Unclaimed", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ponytail: tighten when deploying beyond hackathon
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

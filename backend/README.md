@@ -1,4 +1,4 @@
-# Unclaimed — Backend
+# Unclaimed - Backend
 
 AI agent that finds unclaimed government benefits via knowledge-graph reasoning. Models eligibility as a graph and reasons over it with multi-hop categorical logic ("if I enroll in SSI, what else unlocks?").
 
@@ -40,8 +40,8 @@ make clean  # remove caches
 
 ## Architecture
 
-- **Knowledge graph** (NetworkX) — programs + conditions + categorical edges, loaded from `rules/*.yaml`
-- **Deterministic engine** — sole authority on eligibility verdicts; LLM never decides
-- **Agent loop** — OpenAI-compatible tool-calling; wraps the deterministic pipeline
-- **Guardrails** — hedged language, provenance, disclaimers on every result
+- **Knowledge graph** (NetworkX) - programs + conditions + categorical edges, loaded from `rules/*.yaml`
+- **Deterministic engine** - sole authority on eligibility verdicts; LLM never decides
+- **Agent loop** - OpenAI-compatible tool-calling; wraps the deterministic pipeline
+- **Guardrails** - hedged language, provenance, disclaimers on every result
 
