@@ -255,10 +255,10 @@ function DynamicGraph() {
           <select
             value={selectedCategory}
             onChange={(event) => setSelectedCategory(event.target.value as GraphCategory)}
-            className="rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-[11px] font-normal uppercase tracking-normal text-slate-200"
+            className="cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-[11px] font-normal uppercase tracking-normal text-slate-200"
           >
             {graphCategoryOptions.map((option) => (
-              <option key={option.value} value={option.value}>
+              <option key={option.value} value={option.value} className="cursor-pointer">
                 {option.label}
               </option>
             ))}

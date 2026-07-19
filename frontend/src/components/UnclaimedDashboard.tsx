@@ -474,11 +474,12 @@ export default function Dashboard() {
                 <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Household status</h3>
                 <div className="mt-3 grid gap-2 md:grid-cols-2">
                   {categoryOptions.map((option) => (
-                    <label key={option.id} className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-300">
+                    <label key={option.id} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-300">
                       <input
                         type="checkbox"
                         checked={form.categories.includes(option.id)}
                         onChange={() => handleCheckboxChange("categories", option.id)}
+                        className="cursor-pointer"
                       />
                       {option.label}
                     </label>
@@ -490,11 +491,12 @@ export default function Dashboard() {
                 <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Currently receiving</h3>
                 <div className="mt-3 grid gap-2 md:grid-cols-2">
                   {enrolledOptions.map((option) => (
-                    <label key={option.id} className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-300">
+                    <label key={option.id} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-300">
                       <input
                         type="checkbox"
                         checked={form.enrolledIn.includes(option.id)}
                         onChange={() => handleCheckboxChange("enrolledIn", option.id)}
+                        className="cursor-pointer"
                       />
                       {option.label}
                     </label>
@@ -510,7 +512,7 @@ export default function Dashboard() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-lg bg-emerald-600 px-5 py-3 font-medium transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-600"
+                  className="cursor-pointer rounded-lg bg-emerald-600 px-5 py-3 font-medium transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-600"
                 >
                   {isSubmitting ? "Checking 61 programs…" : "Submit"}
                 </button>
@@ -570,7 +572,7 @@ export default function Dashboard() {
                     type="button"
                     onClick={() => setResultPage((page) => Math.max(1, page - 1))}
                     disabled={resultPage === 1}
-                    className="rounded-md border border-slate-700 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="cursor-pointer rounded-md border border-slate-700 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -579,7 +581,7 @@ export default function Dashboard() {
                     type="button"
                     onClick={() => setResultPage((page) => Math.min(totalPages, page + 1))}
                     disabled={resultPage === totalPages}
-                    className="rounded-md border border-slate-700 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="cursor-pointer rounded-md border border-slate-700 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>
@@ -649,7 +651,7 @@ export default function Dashboard() {
                                     <button
                                       type="button"
                                       onClick={() => toggleCard(item.program_id)}
-                                      className="flex w-full items-center justify-between text-left"
+                                      className="flex w-full cursor-pointer items-center justify-between text-left"
                                     >
                                       <span className="text-sm font-semibold text-slate-200">Why you qualify</span>
                                       <span className="text-xs text-slate-400">{expandedCards[item.program_id] ? "Hide" : "Show"}</span>
