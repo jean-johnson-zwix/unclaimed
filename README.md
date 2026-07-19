@@ -67,6 +67,12 @@ The filled intake state after submitting core household and income details.
 
 ![Unclaimed Benefits Agent - Submitted Intake](./docs/screenshots/dashboard-submitted.png)
 
+### Cascade Discovery State
+
+The cascade view opened from a selected program, showing downstream opportunities unlocked hop-by-hop.
+
+![Unclaimed Benefits Agent - Cascade Discovery](./docs/screenshots/dashboard-cascade.png)
+
 ### Offline Fallback State
 
 The offline-mode dashboard showing fallback recommendations when the backend is unavailable.
