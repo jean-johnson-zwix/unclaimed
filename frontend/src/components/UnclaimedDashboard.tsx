@@ -374,6 +374,11 @@ export default function Dashboard() {
     ];
   }, [visibleResults]);
 
+  const resultProgramIds = useMemo(
+    () => Array.from(new Set(results.map((item) => item.program_id).filter(Boolean))),
+    [results],
+  );
+
   const toggleCard = (programId: string) => {
     setExpandedCards((prev) => ({ ...prev, [programId]: !prev[programId] }));
   };
@@ -542,7 +547,7 @@ export default function Dashboard() {
               </div>
 
               <div className="absolute inset-0 pt-12">
-                <DynamicGraph />
+                <DynamicGraph allowedProgramIds={resultProgramIds} />
               </div>
             </div>
           </div>

@@ -188,7 +188,11 @@ function edgePath(fromNode: { x: number; y: number }, toNode: { x: number; y: nu
   return `M ${fromNode.x} ${fromNode.y} Q ${cx} ${cy} ${toNode.x} ${toNode.y}`;
 }
 
-function DynamicGraph() {
+type DynamicGraphProps = {
+  allowedProgramIds: string[];
+};
+
+function DynamicGraph({ allowedProgramIds }: DynamicGraphProps) {
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -239,7 +243,15 @@ function DynamicGraph() {
     };
   }, [selectedCategory]);
 
-  const visibleNodes = useMemo(() => nodes.slice(0, MAX_NODES), [nodes]);
+  const allowedProgramIdSet = useMemo(() => new Set(allowedProgramIds), [allowedProgramIds]);
+
+  const visibleNodes = useMemo(() => {
+    if (allowedProgramIdSet.size === 0) {
+      return nodes.slice(0, MAX_NODES);
+    }
+
+    return nodes.filter((node) => allowedProgramIdSet.has(node.id)).slice(0, MAX_NODES);
+  }, [allowedProgramIdSet, nodes]);
   const visibleEdges = useMemo(() => {
     const visibleNodeIds = new Set(visibleNodes.map((node) => node.id));
     return edges.filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)).slice(0, MAX_EDGES);
