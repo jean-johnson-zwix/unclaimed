@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import DynamicGraph from "@/components/DynamicGraph";
+import UnlockCascade from "@/components/UnlockCascade";
 import UnclaimedHeader from "@/components/UnclaimedHeader";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -238,6 +239,7 @@ export default function Dashboard() {
   const [resolvedProfile, setResolvedProfile] = useState<Record<string, unknown> | null>(null);
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [selectedGraphCategory, setSelectedGraphCategory] = useState<GraphCategory>("all");
+  const [cascadeProgramId, setCascadeProgramId] = useState<string | null>(null);
   const activeRequestRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -342,6 +344,7 @@ export default function Dashboard() {
       setSummary(data.summary ?? null);
       setDisclaimers(data.disclaimers ?? null);
       setResolvedProfile(data.resolved_profile ?? null);
+      setCascadeProgramId(null);
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
         return;
@@ -558,11 +561,15 @@ export default function Dashboard() {
               </div>
 
               <div className="absolute inset-0 pt-12">
-                <DynamicGraph
-                  allowedProgramIds={resultProgramIds}
-                  selectedCategory={selectedGraphCategory}
-                  onCategoryChange={setSelectedGraphCategory}
-                />
+                {cascadeProgramId ? (
+                  <UnlockCascade programId={cascadeProgramId} onClose={() => setCascadeProgramId(null)} />
+                ) : (
+                  <DynamicGraph
+                    allowedProgramIds={resultProgramIds}
+                    selectedCategory={selectedGraphCategory}
+                    onCategoryChange={setSelectedGraphCategory}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -650,9 +657,13 @@ export default function Dashboard() {
 
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   {(item.unlocks?.length ?? 0) > 0 ? (
-                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-300">
+                                    <button
+                                      type="button"
+                                      onClick={() => setCascadeProgramId(item.program_id)}
+                                      className="cursor-pointer rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-700"
+                                    >
                                       Unlocks {item.unlocks?.length ?? 0} more →
-                                    </span>
+                                    </button>
                                   ) : null}
                                   {item.apply_url ? (
                                     <a
