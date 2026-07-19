@@ -422,12 +422,12 @@ export default function Dashboard() {
                     <select
                       value={form.state}
                       onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+                      className="w-full cursor-pointer rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
                     >
                       <>
-                        <option value="" disabled hidden>Select...</option>
+                        <option value="" disabled hidden className="cursor-pointer">Select...</option>
                         {US_STATES_AND_TERRITORIES.map(place => (
-                          <option value={place.name} key={place.name}>{place.code}</option>
+                          <option value={place.name} key={place.name} className="cursor-pointer">{place.code}</option>
                         ))}
                       </>
                     </select>
@@ -535,8 +535,8 @@ export default function Dashboard() {
 
           <div className="flex-shrink-0 border-b border-slate-800 bg-slate-950/95 pt-4 pb-4">
             <div className="relative h-[280px] overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 sm:h-[340px] lg:h-[620px]">
-              <div className="absolute left-1/2 top-2 z-10 w-full max-w-[280px] -translate-x-1/2 rounded-lg border border-slate-800 bg-slate-900/80 p-2 text-center backdrop-blur">
-                <h2 className="whitespace-nowrap text-[11px] font-bold tracking-tight text-white">Live program graph</h2>
+              <div className="absolute left-1/2 top-2 z-10 w-full max-w-[280px] -translate-x-1/2 rounded-lg p-2 text-center">
+                <h2 className="whitespace-nowrap text-[18px] font-bold tracking-tight text-white">Live program graph</h2>
               </div>
 
               <div className="absolute inset-0 pt-12">
