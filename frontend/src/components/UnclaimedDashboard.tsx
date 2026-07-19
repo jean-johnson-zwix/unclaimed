@@ -5,7 +5,74 @@ import DynamicGraph from "@/components/DynamicGraph";
 import UnclaimedHeader from "@/components/UnclaimedHeader";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
-const MAX_RESULTS = 8;
+const MAX_RESULTS = 5;
+
+type USStateOrTerritory = {
+  readonly name: string;
+  readonly code: string;
+};
+
+const US_STATES_AND_TERRITORIES: readonly USStateOrTerritory[] = [
+  // 50 States
+  { name: 'Alabama', code: 'AL' },
+  { name: 'Alaska', code: 'AK' },
+  { name: 'Arizona', code: 'AZ' },
+  { name: 'Arkansas', code: 'AR' },
+  { name: 'California', code: 'CA' },
+  { name: 'Colorado', code: 'CO' },
+  { name: 'Connecticut', code: 'CT' },
+  { name: 'Delaware', code: 'DE' },
+  { name: 'Florida', code: 'FL' },
+  { name: 'Georgia', code: 'GA' },
+  { name: 'Hawaii', code: 'HI' },
+  { name: 'Idaho', code: 'ID' },
+  { name: 'Illinois', code: 'IL' },
+  { name: 'Indiana', code: 'IN' },
+  { name: 'Iowa', code: 'IA' },
+  { name: 'Kansas', code: 'KS' },
+  { name: 'Kentucky', code: 'KY' },
+  { name: 'Louisiana', code: 'LA' },
+  { name: 'Maine', code: 'ME' },
+  { name: 'Maryland', code: 'MD' },
+  { name: 'Massachusetts', code: 'MA' },
+  { name: 'Michigan', code: 'MI' },
+  { name: 'Minnesota', code: 'MN' },
+  { name: 'Mississippi', code: 'MS' },
+  { name: 'Missouri', code: 'MO' },
+  { name: 'Montana', code: 'MT' },
+  { name: 'Nebraska', code: 'NE' },
+  { name: 'Nevada', code: 'NV' },
+  { name: 'New Hampshire', code: 'NH' },
+  { name: 'New Jersey', code: 'NJ' },
+  { name: 'New Mexico', code: 'NM' },
+  { name: 'New York', code: 'NY' },
+  { name: 'North Carolina', code: 'NC' },
+  { name: 'North Dakota', code: 'ND' },
+  { name: 'Ohio', code: 'OH' },
+  { name: 'Oklahoma', code: 'OK' },
+  { name: 'Oregon', code: 'OR' },
+  { name: 'Pennsylvania', code: 'PA' },
+  { name: 'Rhode Island', code: 'RI' },
+  { name: 'South Carolina', code: 'SC' },
+  { name: 'South Dakota', code: 'SD' },
+  { name: 'Tennessee', code: 'TN' },
+  { name: 'Texas', code: 'TX' },
+  { name: 'Utah', code: 'UT' },
+  { name: 'Vermont', code: 'VT' },
+  { name: 'Virginia', code: 'VA' },
+  { name: 'Washington', code: 'WA' },
+  { name: 'West Virginia', code: 'WV' },
+  { name: 'Wisconsin', code: 'WI' },
+  { name: 'Wyoming', code: 'WY' },
+  // Federal District
+  { name: 'District of Columbia', code: 'DC' },
+  // 5 Major Inhabited Territories
+  { name: 'American Samoa', code: 'AS' },
+  { name: 'Guam', code: 'GU' },
+  { name: 'Northern Mariana Islands', code: 'MP' },
+  { name: 'Puerto Rico', code: 'PR' },
+  { name: 'U.S. Virgin Islands', code: 'VI' }
+] as const;
 
 const categoryOptions = [
   { id: "pregnant", label: "Pregnant" },
@@ -56,9 +123,10 @@ type ResultItem = {
   verdict: string;
   category: string;
   estimated_benefit?: { estimated_monthly?: number; estimated_annual?: number; note?: string } | null;
-  matched?: Array<{ label?: string; detail?: string }>;
-  needs_verification?: Array<{ label?: string; detail?: string }>;
-  unlocks?: Array<{ program_id?: string }>;
+  matched?: Array<{ label?: string; detail?: string; source_url?: string | null }>;
+  needs_verification?: Array<{ label?: string; detail?: string; source_url?: string | null }>;
+  unlocks?: Array<{ program_id?: string; program_name?: string; relation?: string; hop?: number }>;
+  apply_url?: string | null;
 };
 
 type ScreenResponse = {
@@ -72,13 +140,86 @@ type ScreenResponse = {
   };
   disclaimers?: Record<string, string>;
   meta?: Record<string, unknown>;
+  explanation?: string;
 };
+
+function formatCurrency(value: number | null | undefined) {
+  if (value == null || Number.isNaN(value)) {
+    return "—";
+  }
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function getCategoryAccent(category: string) {
+  const palette: Record<string, string> = {
+    nutrition: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+    health: "border-rose-500/20 bg-rose-500/10 text-rose-300",
+    cash: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+    cash_assistance: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+    tax_credit: "border-violet-500/20 bg-violet-500/10 text-violet-300",
+    housing: "border-sky-500/20 bg-sky-500/10 text-sky-300",
+    energy: "border-orange-500/20 bg-orange-500/10 text-orange-300",
+    education: "border-teal-500/20 bg-teal-500/10 text-teal-300",
+    telecom: "border-slate-500/20 bg-slate-500/10 text-slate-300",
+  };
+
+  return palette[category] ?? "border-slate-700 bg-slate-800 text-slate-300";
+}
+
+function AnimatedAmount({ value, className }: { value: number | null | undefined; className?: string }) {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    if (value == null || Number.isNaN(value)) {
+      setDisplayValue(0);
+      return;
+    }
+
+    let cancelled = false;
+    const startValue = displayValue;
+    const endValue = value;
+    const durationMs = 900;
+    const startTime = window.performance.now();
+
+    const tick = (timestamp: number) => {
+      if (cancelled) {
+        return;
+      }
+
+      const progress = Math.min(1, (timestamp - startTime) / durationMs);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const nextValue = Math.round(startValue + (endValue - startValue) * easedProgress);
+      setDisplayValue(nextValue);
+
+      if (progress < 1) {
+        window.requestAnimationFrame(tick);
+      }
+    };
+
+    window.requestAnimationFrame(tick);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [value]);
+
+  if (value == null || Number.isNaN(value)) {
+    return <span className={className}>—</span>;
+  }
+
+  return <span className={className}>{formatCurrency(displayValue)}</span>;
+}
 
 export default function Dashboard() {
   const [form, setForm] = useState<ProfileFormState>({
     householdSize: "1",
     monthlyIncome: "",
-    state: "AZ",
+    state: "",
     age: "",
     categories: [],
     enrolledIn: [],
@@ -93,6 +234,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState<ScreenResponse["summary"] | null>(null);
   const [disclaimers, setDisclaimers] = useState<Record<string, string> | null>(null);
   const [resolvedProfile, setResolvedProfile] = useState<Record<string, unknown> | null>(null);
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const activeRequestRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -222,22 +364,38 @@ export default function Dashboard() {
     return results.slice(startIndex, startIndex + MAX_RESULTS);
   }, [resultPage, results]);
 
+  const groupedVisibleResults = useMemo(() => {
+    const likelyEligible = visibleResults.filter((item) => item.verdict === "likely_eligible");
+    const uncertain = visibleResults.filter((item) => item.verdict === "uncertain");
+
+    return [
+      { key: "likely_eligible", title: "Likely eligible", items: likelyEligible },
+      { key: "uncertain", title: "Needs a little more review", items: uncertain },
+    ];
+  }, [visibleResults]);
+
+  const toggleCard = (programId: string) => {
+    setExpandedCards((prev) => ({ ...prev, [programId]: !prev[programId] }));
+  };
+
   return (
     <div className="flex min-h-[78vh] w-full flex-col gap-4">
       <UnclaimedHeader healthStatus={healthStatus} isBackendUp={backendUp} />
+
       <div className="flex min-h-[78vh] w-full flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 text-white shadow-2xl shadow-black/20 lg:flex-row">
-        <div className="flex w-full flex-col justify-between border-r border-slate-800 p-4 lg:w-[55%]">
+        <div className="flex w-full flex-col justify-between border-r border-slate-800 p-4 lg:w-[40%]">
           <div className="space-y-4 overflow-y-auto pr-1">
             <div className="rounded-xl bg-slate-800 p-4">
               <p className="text-sm font-semibold text-emerald-400">AI Screener</p>
               <p className="mt-1 text-base">
                 Share the basics and we’ll screen for likely matches. We do not save your data and the form stays in your browser session.
               </p>
+              <p className="mt-2 text-sm text-slate-400">This is a preview, not an official determination; verify with each agency before making decisions.</p>
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-3">
                   <label className="space-y-1 text-sm text-slate-300">
                     <span>Household size</span>
                     <input
@@ -247,31 +405,6 @@ export default function Dashboard() {
                       onChange={(event) => setForm((prev) => ({ ...prev, householdSize: event.target.value }))}
                       className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
                     />
-                  </label>
-                  <label className="space-y-1 text-sm text-slate-300">
-                    <span>Monthly income (gross, USD/mo)</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={form.monthlyIncome}
-                      onChange={(event) => setForm((prev) => ({ ...prev, monthlyIncome: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
-                      placeholder="Enter dollar amount"
-                      inputMode="decimal"
-                    />
-                  </label>
-                  <label className="space-y-1 text-sm text-slate-300">
-                    <span>State</span>
-                    <select
-                      value={form.state}
-                      onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
-                    >
-                      <option value="AZ">AZ</option>
-                      <option value="CA">CA</option>
-                      <option value="TX">TX</option>
-                    </select>
                   </label>
                   <label className="space-y-1 text-sm text-slate-300">
                     <span>Age</span>
@@ -284,7 +417,35 @@ export default function Dashboard() {
                       className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
                     />
                   </label>
-                  <label className="space-y-1 text-sm text-slate-300 md:col-span-2">
+                  <label className="space-y-1 text-sm text-slate-300">
+                    <span>State</span>
+                    <select
+                      value={form.state}
+                      onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
+                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+                    >
+                      <>
+                        <option value="" disabled hidden>Select...</option>
+                        {US_STATES_AND_TERRITORIES.map(place => (
+                          <option value={place.name} key={place.name}>{place.code}</option>
+                        ))}
+                      </>
+                    </select>
+                  </label>
+                  <label className="space-y-1 text-sm text-slate-300 md:col-span-3">
+                    <span>Monthly income (gross, USD/mo)</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={form.monthlyIncome}
+                      onChange={(event) => setForm((prev) => ({ ...prev, monthlyIncome: event.target.value }))}
+                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+                      placeholder="Enter dollar amount"
+                      inputMode="decimal"
+                    />
+                  </label>
+                  <label className="space-y-1 text-sm text-slate-300 md:col-span-3">
                     <span>Assets (optional, USD)</span>
                     <input
                       type="number"
@@ -297,7 +458,7 @@ export default function Dashboard() {
                       inputMode="decimal"
                     />
                   </label>
-                  <label className="space-y-1 text-sm text-slate-300 md:col-span-2">
+                  <label className="space-y-1 text-sm text-slate-300 md:col-span-3">
                     <span>Immigration status (optional)</span>
                     <input
                       value={form.immigrationStatus}
@@ -351,22 +512,51 @@ export default function Dashboard() {
                   disabled={isSubmitting}
                   className="rounded-lg bg-emerald-600 px-5 py-3 font-medium transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-600"
                 >
-                  {isSubmitting ? "Screening..." : "Submit"}
+                  {isSubmitting ? "Checking 61 programs…" : "Submit"}
                 </button>
               </div>
             </form>
 
+          </div>
+        </div>
+
+        <div className="flex min-w-[280px] flex-col bg-slate-950 lg:w-[60%] p-4">
+          <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-slate-900 to-slate-950 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-300">Estimated annual value</p>
+            <div className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">
+              {summary?.estimated_total_annual != null ? <AnimatedAmount value={summary.estimated_total_annual} /> : "—"}
+            </div>
+            <p className="mt-2 text-sm text-slate-300">
+              {summary?.estimated_total_annual != null
+                ? "This is the combined annual value of the programs most likely to fit your household."
+                : "We’ll surface the total once the backend returns a value for the likely-eligible matches."}
+            </p>
+          </div>
+
+          <div className="flex-shrink-0 border-b border-slate-800 bg-slate-950/95 pt-4 pb-4">
+            <div className="relative h-[280px] overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 sm:h-[340px] lg:h-[420px]">
+              <div className="absolute left-1/2 top-2 z-10 w-full max-w-[280px] -translate-x-1/2 rounded-lg border border-slate-800 bg-slate-900/80 p-2 text-center backdrop-blur">
+                <h2 className="whitespace-nowrap text-[11px] font-bold tracking-tight text-white">Live program graph</h2>
+              </div>
+
+              <div className="absolute inset-0 pt-12">
+                <DynamicGraph />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-800 bg-slate-950/95 pt-2">
             {summary ? (
               <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
                 <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Summary</h3>
                 <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-300">
                   <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-emerald-300">Likely eligible: {summary.likely_eligible ?? 0}</span>
-                  <span className="rounded-full bg-amber-500/10 px-2 py-1 text-amber-300">Uncertain: {summary.uncertain ?? 0}</span>
+                  <span className="rounded-full bg-amber-500/10 px-2 py-1 text-amber-300">Needs a check: {summary.uncertain ?? 0}</span>
                 </div>
               </div>
             ) : null}
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
+            <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/70 p-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Results</h3>
                 <div className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-300">
@@ -399,47 +589,123 @@ export default function Dashboard() {
               {visibleResults.length === 0 ? (
                 <p className="mt-3 text-sm text-slate-400">Submit the form to see ranked programs from the backend.</p>
               ) : (
-                <div className="mt-4 space-y-3">
-                  {visibleResults.map((item) => (
-                    <article key={item.program_id} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h4 className="text-sm font-semibold text-white">{item.program_name}</h4>
-                          <p className="mt-1 text-xs text-slate-300">{item.category}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className={`rounded-full px-2 py-1 text-[11px] font-semibold ${item.verdict === "likely_eligible" ? "bg-emerald-500/10 text-emerald-300" : item.verdict === "uncertain" ? "bg-amber-500/10 text-amber-300" : "bg-slate-800 text-slate-300"}`}>
-                            {item.verdict}
+                <div className="mt-4 space-y-4">
+                  {groupedVisibleResults.map((group) => (
+                    <div key={group.key}>
+                      {group.items.length > 0 ? (
+                        <>
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className={`h-2.5 w-2.5 rounded-full ${group.key === "likely_eligible" ? "bg-emerald-400" : "bg-amber-400"}`} />
+                            <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">{group.title}</h4>
                           </div>
-                          <div className="mt-1 text-xs font-semibold text-white">
-                            {item.estimated_benefit?.estimated_monthly ? `$${item.estimated_benefit.estimated_monthly}/mo` : "Estimate pending"}
-                          </div>
-                        </div>
-                      </div>
+                          <div className="space-y-3">
+                            {group.items.map((item) => (
+                              <article key={item.program_id} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`h-2.5 w-2.5 rounded-full ${item.verdict === "likely_eligible" ? "bg-emerald-400" : "bg-amber-400"}`} />
+                                      <h4 className="text-sm font-semibold text-white">{item.program_name}</h4>
+                                    </div>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      <span className={`rounded-full border px-2 py-1 text-[11px] font-medium ${getCategoryAccent(item.category)}`}>
+                                        {item.category}
+                                      </span>
+                                      <span className={`rounded-full px-2 py-1 text-[11px] font-medium ${item.verdict === "likely_eligible" ? "bg-emerald-500/10 text-emerald-300" : "bg-amber-500/10 text-amber-300"}`}>
+                                        {item.verdict.replace(/_/g, " ")}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="text-right text-sm text-slate-200">
+                                    <div className="font-semibold text-white">
+                                      {item.estimated_benefit?.estimated_monthly ? `$${item.estimated_benefit.estimated_monthly}/mo` : "Estimate pending"}
+                                    </div>
+                                    <div className="mt-1 text-xs text-slate-400">
+                                      {item.estimated_benefit?.estimated_annual ? `$${item.estimated_benefit.estimated_annual}/yr` : "Annual estimate pending"}
+                                    </div>
+                                  </div>
+                                </div>
 
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {(item.matched ?? []).slice(0, 3).map((point, index) => (
-                          <span key={`${item.program_id}-matched-${index}`} className="rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-[10px] text-slate-300">
-                            {point.label ?? point.detail ?? "Matched condition"}
-                          </span>
-                        ))}
-                      </div>
-                    </article>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {(item.unlocks?.length ?? 0) > 0 ? (
+                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-300">
+                                      Unlocks {item.unlocks?.length ?? 0} more →
+                                    </span>
+                                  ) : null}
+                                  {item.apply_url ? (
+                                    <a
+                                      href={item.apply_url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-300"
+                                    >
+                                      Apply
+                                    </a>
+                                  ) : null}
+                                </div>
+
+                                {(item.matched?.length ?? 0) > 0 ? (
+                                  <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleCard(item.program_id)}
+                                      className="flex w-full items-center justify-between text-left"
+                                    >
+                                      <span className="text-sm font-semibold text-slate-200">Why you qualify</span>
+                                      <span className="text-xs text-slate-400">{expandedCards[item.program_id] ? "Hide" : "Show"}</span>
+                                    </button>
+                                    {expandedCards[item.program_id] ? (
+                                      <ul className="mt-2 space-y-2">
+                                        {(item.matched ?? []).map((point, index) => (
+                                          <li key={`${item.program_id}-matched-${index}`} className="rounded-lg bg-slate-900/70 p-2">
+                                            <div className="text-sm text-white">{point.label ?? point.detail ?? "Condition met"}</div>
+                                            {point.detail ? <p className="mt-1 text-xs text-slate-400">{point.detail}</p> : null}
+                                            {point.source_url ? (
+                                              <a href={point.source_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-medium text-emerald-300">
+                                                View source
+                                              </a>
+                                            ) : null}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : null}
+                                  </div>
+                                ) : null}
+
+                                {item.verdict === "uncertain" && (item.needs_verification?.length ?? 0) > 0 ? (
+                                  <div className="mt-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-2">
+                                    <div className="text-sm font-semibold text-amber-200">Almost — do this</div>
+                                    <ul className="mt-2 space-y-2">
+                                      {(item.needs_verification ?? []).map((point, index) => (
+                                        <li key={`${item.program_id}-needs-${index}`} className="text-sm text-amber-100/90">
+                                          <div className="font-medium">{point.label ?? "Additional verification"}</div>
+                                          {point.detail ? <p className="mt-1 text-xs text-amber-100/80">{point.detail}</p> : null}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ) : null}
+                              </article>
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
                   ))}
                 </div>
               )}
+
+              {disclaimers && Object.keys(disclaimers).length > 0 ? (
+                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/70 p-3">
+                  <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Disclaimers</h4>
+                  <ul className="mt-2 space-y-2 text-sm text-slate-400">
+                    {Object.entries(disclaimers).map(([key, value]) => (
+                      <li key={key}>{value}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
-          </div>
-        </div>
-
-        <div className="relative flex-1 min-w-[280px] bg-slate-950">
-          <div className="absolute left-1/2 top-2 z-10 w-full max-w-[280px] -translate-x-1/2 rounded-lg border border-slate-800 bg-slate-900/80 p-2 text-center backdrop-blur">
-            <h2 className="whitespace-nowrap text-[11px] font-bold tracking-tight text-white">Live program graph</h2>
-            <p className="mt-1 text-[9px] leading-3 text-slate-400">The graph is refreshed from the backend response.</p>
-          </div>
-
-          <div className="h-full p-1 pt-12">
-            <DynamicGraph />
           </div>
         </div>
       </div>
