@@ -38,6 +38,11 @@ const graphCategoryOptions: Array<{ value: GraphCategory; label: string }> = [
   { value: "telecom", label: "Telecom" },
 ];
 
+const edgeLegendOptions = [
+  { relation: "categorically_qualifies", label: "Categorically qualifies", color: "#64748b", dash: undefined },
+  { relation: "streamlines", label: "Streamlines", color: "#f59e0b", dash: "6 6" },
+] as const;
+
 function shortenLabel(name: string) {
   const cleaned = name.replace(/\s+/g, " ").trim();
   if (cleaned.length <= 20) {
@@ -147,6 +152,15 @@ function DynamicGraph() {
         </label>
 
         <div className="flex flex-wrap items-center gap-2">
+          {edgeLegendOptions.map((option) => (
+            <div key={option.relation} className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-2 py-1 text-[8px] font-medium text-slate-300">
+              <svg width="18" height="8" viewBox="0 0 18 8" aria-hidden="true">
+                <line x1="1" y1="4" x2="17" y2="4" stroke={option.color} strokeWidth="2" strokeDasharray={option.dash} />
+              </svg>
+              {option.label}
+            </div>
+          ))}
+
           {graphCategoryOptions
             .filter((option) => option.value !== "all")
             .map((option) => (
