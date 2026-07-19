@@ -31,6 +31,9 @@ BENEFIT_TABLE: dict[str, dict] = {
     "az_140ptc": {"annual": {1: 100, 2: 100, 3: 100}, "unit": "annual"},
     "az_140et": {"annual": {1: 100, 2: 100, 3: 100}, "unit": "annual"},
     "msp": {"monthly": {1: 185, 2: 185}, "unit": "monthly", "note": "Medicare premium savings"},
+    "federal_cdcc": {"annual": {1: 600, 2: 1200, 3: 1200, 4: 1200}, "unit": "annual", "note": "20% of up to $3k/$6k care expenses"},
+    "pell_grant": {"annual": {1: 7395}, "unit": "annual", "note": "max grant 2026-27"},
+    "fha_loan": {"annual": {1: 1500}, "unit": "annual", "note": "est. savings vs conventional mortgage insurance"},
 }
 
 
