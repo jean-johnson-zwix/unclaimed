@@ -129,6 +129,8 @@ type ResultItem = {
   apply_url?: string | null;
 };
 
+type GraphCategory = "all" | "nutrition" | "health" | "cash" | "cash_assistance" | "tax_credit" | "housing" | "energy" | "education" | "telecom";
+
 type ScreenResponse = {
   resolved_profile?: Record<string, unknown>;
   results?: ResultItem[];
@@ -235,6 +237,7 @@ export default function Dashboard() {
   const [disclaimers, setDisclaimers] = useState<Record<string, string> | null>(null);
   const [resolvedProfile, setResolvedProfile] = useState<Record<string, unknown> | null>(null);
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const [selectedGraphCategory, setSelectedGraphCategory] = useState<GraphCategory>("all");
   const activeRequestRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -352,17 +355,25 @@ export default function Dashboard() {
     }
   };
 
+  const filteredResults = useMemo(() => {
+    if (selectedGraphCategory === "all") {
+      return results;
+    }
+
+    return results.filter((item) => item.category === selectedGraphCategory);
+  }, [results, selectedGraphCategory]);
+
   const [resultPage, setResultPage] = useState(1);
 
   useEffect(() => {
     setResultPage(1);
-  }, [results.length]);
+  }, [filteredResults.length, selectedGraphCategory]);
 
-  const totalPages = Math.max(1, Math.ceil(results.length / MAX_RESULTS));
+  const totalPages = Math.max(1, Math.ceil(filteredResults.length / MAX_RESULTS));
   const visibleResults = useMemo(() => {
     const startIndex = (resultPage - 1) * MAX_RESULTS;
-    return results.slice(startIndex, startIndex + MAX_RESULTS);
-  }, [resultPage, results]);
+    return filteredResults.slice(startIndex, startIndex + MAX_RESULTS);
+  }, [filteredResults, resultPage]);
 
   const groupedVisibleResults = useMemo(() => {
     const likelyEligible = visibleResults.filter((item) => item.verdict === "likely_eligible");
@@ -375,8 +386,8 @@ export default function Dashboard() {
   }, [visibleResults]);
 
   const resultProgramIds = useMemo(
-    () => Array.from(new Set(results.map((item) => item.program_id).filter(Boolean))),
-    [results],
+    () => Array.from(new Set(filteredResults.map((item) => item.program_id).filter(Boolean))),
+    [filteredResults],
   );
 
   const toggleCard = (programId: string) => {
@@ -547,7 +558,11 @@ export default function Dashboard() {
               </div>
 
               <div className="absolute inset-0 pt-12">
-                <DynamicGraph allowedProgramIds={resultProgramIds} />
+                <DynamicGraph
+                  allowedProgramIds={resultProgramIds}
+                  selectedCategory={selectedGraphCategory}
+                  onCategoryChange={setSelectedGraphCategory}
+                />
               </div>
             </div>
           </div>
@@ -567,11 +582,11 @@ export default function Dashboard() {
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Results</h3>
                 <div className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-300">
-                  {results.length > 0 ? `${Math.min(results.length, MAX_RESULTS)} of ${results.length}` : "No results yet"}
+                  {filteredResults.length > 0 ? `${Math.min(filteredResults.length, MAX_RESULTS)} of ${filteredResults.length}` : "No results yet"}
                 </div>
               </div>
 
-              {results.length > MAX_RESULTS ? (
+              {filteredResults.length > MAX_RESULTS ? (
                 <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-300">
                   <button
                     type="button"

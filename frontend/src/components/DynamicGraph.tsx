@@ -190,14 +190,15 @@ function edgePath(fromNode: { x: number; y: number }, toNode: { x: number; y: nu
 
 type DynamicGraphProps = {
   allowedProgramIds: string[];
+  selectedCategory: GraphCategory;
+  onCategoryChange: (category: GraphCategory) => void;
 };
 
-function DynamicGraph({ allowedProgramIds }: DynamicGraphProps) {
+function DynamicGraph({ allowedProgramIds, selectedCategory, onCategoryChange }: DynamicGraphProps) {
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<GraphCategory>("all");
   const [hoveredNode, setHoveredNode] = useState<{ name: string; x: number; y: number } | null>(null);
   const activeRequestRef = useRef<AbortController | null>(null);
 
@@ -266,7 +267,7 @@ function DynamicGraph({ allowedProgramIds }: DynamicGraphProps) {
           <span>Filter</span>
           <select
             value={selectedCategory}
-            onChange={(event) => setSelectedCategory(event.target.value as GraphCategory)}
+            onChange={(event) => onCategoryChange(event.target.value as GraphCategory)}
             className="cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-[11px] font-normal uppercase tracking-normal text-slate-200"
           >
             {graphCategoryOptions.map((option) => (
