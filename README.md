@@ -24,6 +24,7 @@ Unclaimed helps people move from confusion to confidence and from missed support
 Today I’m showing Unclaimed, an AI-powered benefits copilot.
 The problem is simple: millions of people qualify for support but never claim it because the system is fragmented and hard to navigate.
 Unclaimed turns that complexity into clear, actionable next steps.
+Currently, this demo focuses on US-based programs but could be expanded worldwide.
 
 ### 0:20-0:45
 On the left, I enter household details in a guided intake form.
