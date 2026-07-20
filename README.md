@@ -20,7 +20,7 @@ Unclaimed helps people move from confusion to confidence and from missed support
 
 ## Demo
 
-<video src="UnclaimedDemo.mp4" controls width="100%"></video>
+<video src=".docs/video/UnclaimedDemo.mp4" controls width="100%"></video>
 
 ## 2-Minute Demo Script
 
