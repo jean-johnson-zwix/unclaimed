@@ -20,7 +20,8 @@ Unclaimed helps people move from confusion to confidence and from missed support
 
 ## Demo
 
-<video src="UnclaimedDemo.mp4" controls width="100%"></video>
+<video src="UnclaimedDemo.mp4" title="Demonstration of the Unclaimed: a benefits copilot workflow" controls width="100%"></video>
+_If the video player above does not load, it showcases the Unclaimed: a benefits copilot workflow._
 
 ## 2-Minute Demo Script
 
