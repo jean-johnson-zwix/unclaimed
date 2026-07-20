@@ -20,39 +20,39 @@ Unclaimed helps people move from confusion to confidence and from missed support
 
 ## 2-Minute Demo Script
 
-### 0:00-0:20
+### 0:00-0:24
+Hi, I am Amber.
 Today I’m showing Unclaimed, an AI-powered benefits copilot.
 The problem is simple: millions of people qualify for support but never claim it because the system is fragmented and hard to navigate.
 Unclaimed turns that complexity into clear, actionable next steps.
+
+### 0:24-0:38
 Currently, this demo focuses on US-based programs but could be expanded worldwide.
+On the left, I am going to go ahead and enter some household details into this form.
 
-### 0:20-0:45
-On the left, I enter household details in a guided intake form.
-This is intentionally lightweight so people can start quickly.
-When I submit, Unclaimed screens programs and ranks likely matches based on the household profile.
+### 0:38-1:07
+Just give me one moment to do that. 
+And once I hit submit into this guided intake form, which is intentionally lightweight so people can start quickly, the left side is going to update, showing results.
 
-### 0:45-1:10
-Now we see the results panel.
-Each card shows estimated monthly and annual value, plus verdict status like likely eligible or needs review.
-The key trust feature is Why you qualify, where each recommendation includes rule-based reasoning and source citations.
+### 1:07-1:29
+Each card shows estimated monthly and annual value, plus a verdict status like likely eligible or needs review.
+The key trust feature is Why you qualify, where each recommendation includes rule-based reasoning and source citation.
 
-### 1:10-1:30
-On the right is the live program graph.
-This visual shows that benefits are connected, not isolated.
-If I filter by category, both the graph and results stay in sync, so users can focus on exactly what matters.
+### 1:29-1:52
+Above the results is a live graph program. 
+This visual shows the benefits are connected, not isolated. 
+If I filter, which I'm going to do for cash here in a moment, the graph and the results stay in sync.
 
-### 1:30-1:50
-Here’s the money shot: Unlocks N more.
-Clicking it opens a cascade view from that program and reveals downstream opportunities hop-by-hop.
-Edges are styled by relationship type, so you can immediately distinguish direct categorical qualification from streamline pathways.
+### 1:52-2:09
+So the user can focus on exactly what matters. 
+Now let's look at the money shot: Unlocks 33 more. 
+Clicking it opens a cascade view of that program and reveals downstream opportunities, hop by hop.
 
-### 1:50-2:00
-So instead of asking people to decode policy complexity, Unclaimed gives them a prioritized path: what they likely qualify for now, why, and what to do next to unlock more support.
+### 2:09-2:34
+The edges are styled by relationship types, so you can immediately distinguish direct categorical qualifications from streamlined pathways. 
+So instead of asking people to decode policy complexity, Unclaimed gives them a prioritized path, what they likely qualify for now, why, and what to do next to unlock more support. 
 
-The UI is designed as a split-screen dashboard with:
-- a left-side chat and profile panel for user input and eligibility insights
-- a right-side live program dependency graph visualization
-- ranked discovery cards showing likely benefits and claim guidance
+Now I'm going to hand you over to Jean and she will demo the back end.
 
 ## Screenshots
 
