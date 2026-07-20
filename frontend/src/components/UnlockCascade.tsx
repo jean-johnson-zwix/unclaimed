@@ -45,6 +45,23 @@ const categoryPalette: Record<string, string> = {
   telecom: "#94a3b8",
 };
 
+const categoryLegendOptions: Array<{ value: string; label: string }> = [
+  { value: "nutrition", label: "Nutrition" },
+  { value: "health", label: "Health" },
+  { value: "cash", label: "Cash" },
+  { value: "cash_assistance", label: "Cash assistance" },
+  { value: "tax_credit", label: "Tax credits" },
+  { value: "housing", label: "Housing" },
+  { value: "energy", label: "Energy" },
+  { value: "education", label: "Education" },
+  { value: "telecom", label: "Telecom" },
+];
+
+const edgeLegendOptions = [
+  { relation: "categorically_qualifies", label: "Categorically qualifies", color: "#64748b", dash: undefined },
+  { relation: "streamlines", label: "Streamlines", color: "#f59e0b", dash: "6 6" },
+] as const;
+
 function edgePath(fromNode: { x: number; y: number }, toNode: { x: number; y: number }) {
   const bend = Math.max(20, Math.abs(toNode.x - fromNode.x) * 0.2);
   const c1x = fromNode.x + bend;
@@ -197,29 +214,47 @@ function UnlockCascade({ programId, onClose }: UnlockCascadeProps) {
 
   return (
     <div className="relative h-full w-full bg-slate-950">
-      <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-slate-900/85 px-3 py-2">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-slate-400">Unlock cascade</p>
-          <p className="text-xs font-semibold text-slate-200">{data?.root_name ?? "Program"}</p>
+      <div className="absolute inset-x-0 top-0 z-20 border-b border-slate-800 bg-slate-900/85 px-3 py-2 backdrop-blur">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-slate-200">{data?.root_name ?? "Program"}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Hop {revealHop} / {maxHop}</span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="cursor-pointer rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:bg-slate-800"
+            >
+              Back to graph
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Hop {revealHop} / {maxHop}</span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:bg-slate-800"
-          >
-            Back to graph
-          </button>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {edgeLegendOptions.map((option) => (
+            <div key={option.relation} className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-2 py-1 text-[8px] font-semibold text-slate-300">
+              <svg width="18" height="8" viewBox="0 0 18 8" aria-hidden="true">
+                <line x1="1" y1="4" x2="17" y2="4" stroke={option.color} strokeWidth="2" strokeDasharray={option.dash} />
+              </svg>
+              {option.label}
+            </div>
+          ))}
+
+          {categoryLegendOptions.map((option) => (
+            <div key={option.value} className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-2 py-1 text-[8px] font-semibold text-slate-300">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: categoryPalette[option.value] ?? "#94a3b8" }} />
+              {option.label}
+            </div>
+          ))}
         </div>
       </div>
-
       {loading ? (
         <div className="flex h-full items-center justify-center text-sm text-slate-400">Loading cascade…</div>
       ) : error ? (
         <div className="flex h-full items-center justify-center px-4 text-center text-sm text-rose-300">{error}</div>
       ) : (
-        <div className="h-full pt-12">
+        <div className="h-full pt-28 sm:pt-24 lg:pt-20">
           <svg viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="h-full w-full" preserveAspectRatio="xMidYMid meet">
             <defs>
               <marker id="cascade-arrow-solid" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
